@@ -30,6 +30,7 @@ class User(AbstractUser):
     institution =  models.ForeignKey(Institution, on_delete=models.SET_NULL, null=True, blank=True)
     created_by = models.ForeignKey(
         "User", related_name="created_users", on_delete=models.SET_NULL, null=True, blank=True)
-
+    otp = models.CharField(max_length=6, null=True, blank=True)
+    otp_expiration = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

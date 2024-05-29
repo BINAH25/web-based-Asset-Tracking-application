@@ -16,6 +16,9 @@ from utils.user_permissions import get_all_user_permissions
 from django.shortcuts import HttpResponse
 from django.db.models import Q
 from django.conf import settings
+import random
+from django.utils import timezone
+import datetime
 User = get_user_model()
 # Create your views here.
 
@@ -42,8 +45,46 @@ class SignInAPI(generics.GenericAPIView):
                     response_data = {'message':'Invalid Credential'}
                     return Response(response_data, status=400)
                 
-                user_data = get_auth_for_user(user)
-                return Response(user_data, status=200)
+                # Generate OTP 
+                email = user.email
+                otp = random.randint(1000, 9999)
+                otp_expiry = timezone.now() + datetime.timedelta(minutes=10)
+                user.otp = otp
+                user.otp_expiration = otp_expiry
+                user.save()
+                #user_data = get_auth_for_user(user)
+                context = {
+                "otp": otp,
+                }
+                html_message = render_to_string("otp.html",context)
+                plain_message = strip_tags(html_message)
+                try:
+                    message = EmailMultiAlternatives(
+                    subject="One Time Password",
+                    body=plain_message,
+                    from_email=settings.EMAIL_HOST_USER,
+                    to=[email],
+                )
+                    message.attach_alternative(html_message, 'text/html')
+                    message.send()
+                    return Response(
+                        {
+                            "status": "success",
+                            "detail": "OTP send to your email",
+                            "data": {
+                                "email": email,
+                            },
+                        },
+                        status=status.HTTP_200_OK,
+                    )
+                except Exception as e:
+                    return Response(
+                        {
+                            "status": "error",
+                            "detail": f"Error sending email: {e}, try again",
+                        },
+                        status=400,
+                    )
             else:
                 return Response(
                     {
