@@ -68,6 +68,19 @@ class AddInstitutionAPI(generics.GenericAPIView):
         """ for adding  institution"""
         serializers = self.serializer_class(data=request.data)
         if serializers.is_valid():
+            username = serializers.validated_data['username']
+            email = serializers.validated_data['email']
+            if Institution.objects.filter(username=username):
+              return Response(
+                    {"status": "failure", "detail": "username Already Exist"},
+                    status=400,
+                )  
+            if Institution.objects.filter(email=email):
+              return Response(
+                    {"status": "failure", "detail": "email Already Exist"},
+                    status=400,
+                )  
+
             serializers.save()
             return Response(
                     {
@@ -108,15 +121,21 @@ class AddUserAPI(generics.GenericAPIView):
         if serializers.is_valid():
             institution = serializers.validated_data['institution']
             password = serializers.validated_data['password']
-            user = User.objects.create_user(username=institution.usernane, email=institution.email, password=password, institution=institution,created_by=request.user)
-            user.save()
-            return Response(
-                {
-                    "status": "success",
-                    "detail": "User added Successfully",
-                },
-                status=status.HTTP_201_CREATED,
-            )
+            try:    
+                user = User.objects.create_user(username=institution.usernane, email=institution.email, password=password, institution=institution,created_by=request.user)
+                user.save()
+                return Response(
+                    {
+                        "status": "success",
+                        "detail": "User added Successfully",
+                    },
+                    status=status.HTTP_201_CREATED,
+                )
+            except Institution.DoesNotExist:
+                return Response(
+                    {"status": "error", "detail":"institution Not Found"},
+                    status=404
+                )
         else:
             return Response(
                 {"status": "failure", "detail": serializers.errors},
