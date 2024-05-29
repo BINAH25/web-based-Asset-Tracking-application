@@ -11,7 +11,7 @@ from users.serializers import *
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.core.mail import send_mail, EmailMultiAlternatives
-#from rest_api.permissions import APILevelPermissionCheck
+from utils.permissions import APILevelPermissionCheck
 from django.shortcuts import HttpResponse
 from django.db.models import Q
 from django.conf import settings
@@ -19,11 +19,10 @@ User = get_user_model()
 # Create your views here.
 
 
-class AddInstitutinAPI(generics.GenericAPIView):
+class AddInstitutionAPI(generics.GenericAPIView):
     """ check for require permission for adding a institution """
-    # permission_classes = [permissions.IsAuthenticated,APILevelPermissionCheck]
-    # required_permissions = [ "setup.add_file"]
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated,APILevelPermissionCheck]
+    required_permissions = [ "setup.institution"]
 
     serializer_class = AddInstitutionSerializer
     def post(self, request,*args, **kwargs):
@@ -47,14 +46,13 @@ class AddInstitutinAPI(generics.GenericAPIView):
             
             
 class AddUserAPI(generics.GenericAPIView):
-    """ check for require permission for adding a institution """
-    # permission_classes = [permissions.IsAuthenticated,APILevelPermissionCheck]
-    # required_permissions = [ "setup.add_file"]
-    permission_classes = [permissions.AllowAny]
+    """ check for require permission for adding a user """
+    permission_classes = [permissions.IsAuthenticated,APILevelPermissionCheck]
+    required_permissions = [ "setup.add_user"]
 
     serializer_class = UserRegistrationSerializer
     def post(self, request,*args, **kwargs):
-        """ for adding  institution"""
+        """ for adding  user"""
         serializers = self.serializer_class(data=request.data)
         if serializers.is_valid():
             institution = serializers.validated_data['institution']
