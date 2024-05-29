@@ -12,12 +12,51 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.core.mail import send_mail, EmailMultiAlternatives
 from utils.permissions import APILevelPermissionCheck
+from utils.user_permissions import get_all_user_permissions
 from django.shortcuts import HttpResponse
 from django.db.models import Q
 from django.conf import settings
 User = get_user_model()
 # Create your views here.
 
+def get_auth_for_user(user):
+    refresh = RefreshToken.for_user(user)
+    return {
+        'user':UserLoginSerializer(user).data,
+        'permission':get_all_user_permissions(user),
+        'refresh': str(refresh),
+        'token': str(refresh.access_token) 
+    }
+
+class SignInAPI(generics.GenericAPIView):
+    permission_classes = [permissions.AllowAny]
+    serializer_class = LoginSerializer
+    def post(self, request,*args, **kwargs):
+        serializers = self.serializer_class(data=request.data)
+        if serializers.is_valid():
+            username = serializers.data["username"]
+            password = serializers.data["password"]
+            if User.objects.filter(username=username): 
+                user = authenticate(username=username,password=password)
+                if not user:
+                    response_data = {'message':'Invalid Credential'}
+                    return Response(response_data, status=400)
+                
+                user_data = get_auth_for_user(user)
+                return Response(user_data, status=200)
+            else:
+                return Response(
+                    {
+                        "status": "error",
+                        "detail": "User Not Found",
+                    },
+                    status=404,
+                )
+        else:
+            return Response(
+                {"status": "failure", "detail": serializers.errors},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
 class AddInstitutionAPI(generics.GenericAPIView):
     """ check for require permission for adding a institution """
