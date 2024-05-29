@@ -1,0 +1,32 @@
+from django.db import models
+from django.contrib.auth.models import AbstractUser
+
+# Create your models here.
+
+INSTITITION_TYPES = [
+    ('Tertiary', 'Tertiary'),
+    ('Secondary', 'Secondary'),
+    ('Basic', 'Basic'),
+]
+
+class Institution(models.Model):
+    usernane = models.CharField(max_length=254, unique=True)
+    email: models.EmailField(max_length=200, unique=True)
+    institution_name = models.CharField(max_length=254)
+    location = models.CharField(max_length=254, blank=True, null=True)
+    phone = models.CharField(max_length=20, null=True,
+                             blank=True, db_index=True)
+    institution_type = models.CharField(
+        max_length=50,
+        choices=INSTITITION_TYPES)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+class User(AbstractUser):
+    institution =  models.ForeignKey(Institution, on_delete=models.SET_NULL, null=True, blank=True)
+    created_by = models.ForeignKey(
+        "User", related_name="created_users", on_delete=models.SET_NULL, null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
