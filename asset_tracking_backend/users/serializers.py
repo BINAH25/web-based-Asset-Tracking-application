@@ -8,3 +8,15 @@ class AddInstitutionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Institution
         fields ='__all__'
+        
+        
+class UserRegistrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            'institution',
+            'password'
+        ]
+        extra_kwargs = {'password': {'write_only': True}}
+        
+    

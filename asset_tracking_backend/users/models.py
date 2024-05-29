@@ -24,7 +24,7 @@ class Institution(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return str(self.institution_name)
+        return str(self.institution_name) + " " + str(self.id)
     
 class User(AbstractUser):
     institution =  models.ForeignKey(Institution, on_delete=models.SET_NULL, null=True, blank=True)

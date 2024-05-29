@@ -43,3 +43,33 @@ class AddInstitutinAPI(generics.GenericAPIView):
                 {"status": "failure", "detail": serializers.errors},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+            
+            
+            
+class AddUserAPI(generics.GenericAPIView):
+    """ check for require permission for adding a institution """
+    # permission_classes = [permissions.IsAuthenticated,APILevelPermissionCheck]
+    # required_permissions = [ "setup.add_file"]
+    permission_classes = [permissions.AllowAny]
+
+    serializer_class = UserRegistrationSerializer
+    def post(self, request,*args, **kwargs):
+        """ for adding  institution"""
+        serializers = self.serializer_class(data=request.data)
+        if serializers.is_valid():
+            institution = serializers.validated_data['institution']
+            password = serializers.validated_data['password']
+            user = User.objects.create_user(username=institution.usernane, email=institution.email, password=password, institution=institution,created_by=request.user)
+            user.save()
+            return Response(
+                {
+                    "status": "success",
+                    "detail": "User added Successfully",
+                },
+                status=status.HTTP_201_CREATED,
+            )
+        else:
+            return Response(
+                {"status": "failure", "detail": serializers.errors},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
