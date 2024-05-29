@@ -61,7 +61,7 @@ class SignInAPI(generics.GenericAPIView):
 class AddInstitutionAPI(generics.GenericAPIView):
     """ check for require permission for adding a institution """
     permission_classes = [permissions.IsAuthenticated,APILevelPermissionCheck]
-    required_permissions = [ "setup.institution"]
+    required_permissions = [ "setup.add_institution"]
 
     serializer_class = AddInstitutionSerializer
     def post(self, request,*args, **kwargs):
@@ -82,7 +82,19 @@ class AddInstitutionAPI(generics.GenericAPIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
             
-            
+  
+class GetAllInstitutionsAPI(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated, APILevelPermissionCheck]
+    required_permissions = [ "setup.view_institution"]
+
+    serializer_class = AddInstitutionSerializer
+    def get(self, request,*args, **kwargs):
+        institutions = Institution.objects.all().order_by('-created_at')
+        serializers = self.serializer_class(institutions,many=True)
+        return Response(
+            {"status": "success", "detail": serializers.data},
+            status=200
+        )          
             
 class AddUserAPI(generics.GenericAPIView):
     """ check for require permission for adding a user """

@@ -19,6 +19,14 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         ]
         extra_kwargs = {'password': {'write_only': True}}
         
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            'username',
+            'email'
+        ]
+        
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=254)
     password = serializers.CharField(max_length=254)
@@ -26,6 +34,7 @@ class LoginSerializer(serializers.Serializer):
 
 class UserLoginSerializer(serializers.ModelSerializer):
     institution = AddInstitutionSerializer()
+    created_by = UserSerializer()
     class Meta:
         model = User
         fields = [
@@ -33,6 +42,7 @@ class UserLoginSerializer(serializers.ModelSerializer):
             'username',
             'is_superuser',
             'is_staff',
+            'created_by',
             'institution'
         ]
         
