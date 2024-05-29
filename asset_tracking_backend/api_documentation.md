@@ -31,9 +31,9 @@
 
 ### Request Information
 
-| Method | URL                                   |
-| ------ | ------------------------------------- |
-| POST   | http://127.0.0.1:8000/api/auth/login/ |
+| Method | URL                                                |
+| ------ | ---------------------------------------------------|
+| POST   | https://dcit418.pythonanywhere.com/api/auth/login/ |
 
 ### Header
 
@@ -126,7 +126,7 @@
 
 | Method | URL                                             |
 | ------ | ------------------------------------------------|
-| POST   | http://127.0.0.1:8000/api/add/institution/      |
+| POST   | https://dcit418.pythonanywhere.com/api/add/institution/      |
 
 ### Header
 
@@ -173,7 +173,7 @@
 
 | Method | URL                                             |
 | ------ | ------------------------------------------------|
-| GET    | http://127.0.0.1:8000/api/get/all/institutions/ |
+| GET    | https://dcit418.pythonanywhere.com/api/get/all/institutions/ |
 
 ### Header
 
@@ -230,7 +230,7 @@
 
 | Method | URL                                      |
 | ------ | -----------------------------------------|
-| POST   | http://127.0.0.1:8000/api/auth/register/ |
+| POST   | https://dcit418.pythonanywhere.com/api/auth/register/ |
 
 ### Header
 
