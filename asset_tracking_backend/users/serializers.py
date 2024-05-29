@@ -46,5 +46,7 @@ class UserLoginSerializer(serializers.ModelSerializer):
             'institution'
         ]
         
-        
+class OTPVerifySerializer(serializers.Serializer):
+    #username = serializers.CharField()
+    otp = serializers.CharField(max_length=6)
     

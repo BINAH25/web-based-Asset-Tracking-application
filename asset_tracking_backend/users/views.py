@@ -52,7 +52,6 @@ class SignInAPI(generics.GenericAPIView):
                 user.otp = otp
                 user.otp_expiration = otp_expiry
                 user.save()
-                #user_data = get_auth_for_user(user)
                 context = {
                 "otp": otp,
                 }
@@ -95,6 +94,30 @@ class SignInAPI(generics.GenericAPIView):
                 )
         else:
             return Response(
+                {"status": "failure", "detail": serializers.errors},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+            
+class OTPVerifyAPI(generics.GenericAPIView):
+    permission_classes = [permissions.AllowAny]
+    serializer_class = OTPVerifySerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            otp = serializer.data['otp']
+            try:
+                user = User.objects.get(otp=otp)
+                if user.otp == otp and user.otp_expiration > timezone.now():
+                    user.otp = None
+                    user.otp_expiration = None
+                    user.save()
+                    user_data = get_auth_for_user(user)
+                    return Response(user_data, status=status.HTTP_200_OK)
+                return Response({"message": "expired OTP."}, status=status.HTTP_400_BAD_REQUEST)
+            except User.DoesNotExist:
+                return Response({"message": "Invalid OTP."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
                 {"status": "failure", "detail": serializers.errors},
                 status=status.HTTP_400_BAD_REQUEST,
             )
