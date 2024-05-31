@@ -50,4 +50,10 @@ class UserLoginSerializer(serializers.ModelSerializer):
 class OTPVerifySerializer(serializers.Serializer):
     #username = serializers.CharField()
     otp = serializers.CharField(max_length=6)
+    
+class DeleteInstitutionSerializer(serializers.Serializer):
+    institution_id = serializers.CharField(max_length=100)
+    
+class DeleteUserSerializer(serializers.Serializer):
+    user_id = serializers.CharField(max_length=100)
 

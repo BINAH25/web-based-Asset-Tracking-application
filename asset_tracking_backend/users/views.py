@@ -218,3 +218,61 @@ class GetAllUsersAPI(generics.GenericAPIView):
             {"status": "success", "detail": serializers.data},
             status=200
         )       
+        
+class DeleteInstitutionAPI(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated,APILevelPermissionCheck]
+    required_permissions = [ "setup.delete_institution"]
+    
+    serializer_class = DeleteInstitutionSerializer
+    def delete(self, request, *args, **kwargs):
+        serializers = self.serializer_class(data=request.data)
+        if serializers.is_valid():
+            id = serializers.data['institution_id']
+            try:
+                institution = Institution.objects.get(id=id)
+                institution.delete()
+                return Response(
+                    {
+                        "status": "success",
+                        "detail": "Institution Deleted Successfully",
+                    },
+                    status=status.HTTP_200_OK,
+                )
+            except Institution.DoesNotExist:
+                return Response(
+                    {"status": "error", "detail":"Institution Not Found"},
+                    status=404
+                )
+        return Response(
+            {"status": "failure", "detail": serializers.errors},
+                status=status.HTTP_400_BAD_REQUEST,
+        )
+        
+class DeleteUserAPI(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated,APILevelPermissionCheck]
+    required_permissions = [ "setup.delete_user"]
+    
+    serializer_class = DeleteUserSerializer
+    def delete(self, request, *args, **kwargs):
+        serializers = self.serializer_class(data=request.data)
+        if serializers.is_valid():
+            id = serializers.data['user_id']
+            try:
+                user = User.objects.get(id=id)
+                user.delete()
+                return Response(
+                    {
+                        "status": "success",
+                        "detail": "User Deleted Successfully",
+                    },
+                    status=status.HTTP_200_OK,
+                )
+            except User.DoesNotExist:
+                return Response(
+                    {"status": "error", "detail":"User Not Found"},
+                    status=404
+                )
+        return Response(
+            {"status": "failure", "detail": serializers.errors},
+                status=status.HTTP_400_BAD_REQUEST,
+        )

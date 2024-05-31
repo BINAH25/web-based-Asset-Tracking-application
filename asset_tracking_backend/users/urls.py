@@ -10,5 +10,6 @@ urlpatterns = [
     path("add/institution/", views.AddInstitutionAPI.as_view()),
     path("get/all/institutions/", views.GetAllInstitutionsAPI.as_view()),
     path("get/all/users/", views.GetAllUsersAPI.as_view()),
+    path("delete/institution/", views.DeleteInstitutionAPI.as_view()),
   
 ]
