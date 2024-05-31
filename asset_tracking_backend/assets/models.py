@@ -20,7 +20,8 @@ class Product(models.Model):
     availability = models.CharField(max_length=100, default="Available")
     created_by =  models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     procurement_date = models.DateField(auto_now_add=True)
-    
+    created_at = models.DateTimeField(auto_now_add=True)
+
     def __str__(self):
         return self.product_name + " " + self.tag
     
