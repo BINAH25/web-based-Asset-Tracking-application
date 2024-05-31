@@ -24,7 +24,7 @@ class AddTagAPI(generics.GenericAPIView):
         """ for adding  tag"""
         serializers = self.serializer_class(data=request.data)
         if serializers.is_valid():
-            new_tag = serializers.save(uploaded_by=request.user) 
+            new_tag = serializers.save(created_by=request.user) 
             return Response(
                     {
                         "status": "success",
@@ -39,16 +39,45 @@ class AddTagAPI(generics.GenericAPIView):
             )
             
   
-class GetAllInstitutionsAPI(generics.GenericAPIView):
+class GetAllTagsAPI(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated, APILevelPermissionCheck]
-    required_permissions = [ "setup.view_institution"]
+    required_permissions = [ "setup.view_tags"]
 
-    serializer_class = AddTagSerializer
+    serializer_class = GettAllTagSerializer
     def get(self, request,*args, **kwargs):
-        institutions = Institution.objects.all().order_by('-created_at')
-        serializers = self.serializer_class(institutions,many=True)
+        tags = Tag.objects.all().order_by('-created_at')
+        serializers = self.serializer_class(tags,many=True)
         return Response(
             {"status": "success", "detail": serializers.data},
             status=200
         )          
+            
+            
+class DeleteTagAPI(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated,APILevelPermissionCheck]
+    required_permissions = [ "setup.delete_tag"]
+    serializer_class = DeleteTagSerializer
+    def delete(self, request, *args, **kwargs):
+        serializers = self.serializer_class(data=request.data)
+        if serializers.is_valid():
+            id = serializers.data['tag_id']
+            try:
+                tag = Tag.objects.get(id=id)
+                tag.delete()
+                return Response(
+                    {
+                        "status": "success",
+                        "detail": "Tag Deleted Successfully",
+                    },
+                    status=status.HTTP_200_OK,
+                )
+            except Tag.DoesNotExist:
+                return Response(
+                    {"status": "error", "detail":"Tag Not Found"},
+                    status=404
+                )
+        return Response(
+            {"status": "failure", "detail": serializers.errors},
+                status=status.HTTP_400_BAD_REQUEST,
+        )
             
