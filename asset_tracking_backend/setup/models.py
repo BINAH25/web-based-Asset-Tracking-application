@@ -19,4 +19,9 @@ class SetupPerm(models.Model):
             ("add_user", "Can add user"),
             ("edit_user", "Can edit user"),
             ("delete_user", "Can delete user"),
+            # tag
+            ("view_tag", "Can view tag"),
+            ("add_tag", "Can add tag"),
+            ("edit_tag", "Can edit tag"),
+            ("delete_tag", "Can delete tag"),
         ]
