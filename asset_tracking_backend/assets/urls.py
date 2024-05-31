@@ -14,5 +14,7 @@ urlpatterns = [
     path("delete/product/", views.DeleteProductAPI.as_view()), 
     #asset 
     path("add/asset/", views.AddAssetAPI.as_view()),  
+    path("get/all-assets/", views.GetAllAsssetsAPI.as_view()),  
+    path("delete/asset/", views.DeleteAssetAPI.as_view()),  
   
 ]

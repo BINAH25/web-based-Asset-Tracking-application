@@ -42,3 +42,18 @@ class AddAssetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Asset
         fields = ['product','owner']
+        
+        
+        
+class GetAllAssetSerializer(serializers.ModelSerializer):
+    product = GettAllProductSerializer()
+    owner = UserLoginSerializer()
+    created_by = UserSerializer()
+    class Meta:
+        model = Asset
+        fields = '__all__'
+        
+        
+class DeleteAssetSerializer(serializers.Serializer):
+    asset_id = serializers.CharField(max_length=254)
+    

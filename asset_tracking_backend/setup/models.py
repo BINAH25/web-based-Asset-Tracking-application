@@ -30,7 +30,7 @@ class SetupPerm(models.Model):
             ("edit_product", "Can edit product"),
             ("delete_product", "Can delete product"),
             # asset
-            ("view_asset", "Can view asset"),
+            ("view_all_assets", "Can view asset"),
             ("add_asset", "Can add asset"),
             ("edit_asset", "Can edit asset"),
             ("delete_asset", "Can delete asset"),
