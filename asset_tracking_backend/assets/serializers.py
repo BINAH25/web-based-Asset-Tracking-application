@@ -36,3 +36,9 @@ class GettAllProductSerializer(serializers.ModelSerializer):
         
 class DeleteProductSerializer(serializers.Serializer):
     product_id = serializers.CharField(max_length=254)
+    
+    
+class AddAssetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Asset
+        fields = ['product','owner']

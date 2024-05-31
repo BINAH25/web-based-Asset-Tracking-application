@@ -38,6 +38,7 @@ class UserLoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
+            'id',
             'email',
             'username',
             'is_superuser',
@@ -49,4 +50,4 @@ class UserLoginSerializer(serializers.ModelSerializer):
 class OTPVerifySerializer(serializers.Serializer):
     #username = serializers.CharField()
     otp = serializers.CharField(max_length=6)
-    
+

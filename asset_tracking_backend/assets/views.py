@@ -92,7 +92,7 @@ class AddProductAPI(generics.GenericAPIView):
         """ for adding  product"""
         serializers = self.serializer_class(data=request.data)
         if serializers.is_valid():
-            new_tag = serializers.save(created_by=request.user) 
+            product = serializers.save(created_by=request.user) 
             return Response(
                     {
                         "status": "success",
@@ -113,7 +113,7 @@ class GetAllProductsAPI(generics.GenericAPIView):
 
     serializer_class = GettAllProductSerializer
     def get(self, request,*args, **kwargs):
-        products = Product.objects.all().order_by('-created_at')
+        products = Product.objects.filter(availability="Available").all().order_by('-created_at')
         serializers = self.serializer_class(products,many=True)
         return Response(
             {"status": "success", "detail": serializers.data},
@@ -149,3 +149,31 @@ class DeleteProductAPI(generics.GenericAPIView):
             {"status": "failure", "detail": serializers.errors},
                 status=status.HTTP_400_BAD_REQUEST,
         )
+        
+class AddAssetAPI(generics.GenericAPIView):
+    """ check for require permission for adding a asset """
+    permission_classes = [permissions.IsAuthenticated,APILevelPermissionCheck]
+    required_permissions = [ "setup.add_product"]
+
+    serializer_class = AddAssetSerializer
+    def post(self, request,*args, **kwargs):
+        """ for adding  asset"""
+        serializers = self.serializer_class(data=request.data)
+        if serializers.is_valid():
+            product = serializers.validated_data['product']
+            asset = serializers.save(created_by=request.user) 
+            product.availability = "Unavailable"
+            product.save()
+            return Response(
+                    {
+                        "status": "success",
+                        "detail": "asset added Successfully",
+                    },
+                    status=status.HTTP_201_CREATED,
+                )
+        else:
+            return Response(
+                {"status": "failure", "detail": serializers.errors},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+            

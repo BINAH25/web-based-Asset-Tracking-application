@@ -23,7 +23,7 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.product_name + " " + self.tag
+        return self.product_name + " " + str(self.tag)
     
     
     
@@ -34,7 +34,7 @@ class Asset(models.Model):
     status = models.CharField(max_length=100, default="Functional")
     created_at = models.DateTimeField(auto_now_add=True)
     def __str__(self):
-        return self.product
+        return str(self.product )+ " " + str(self.owner)
     
 class AssetLog(models.Model):
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE)

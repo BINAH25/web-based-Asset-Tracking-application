@@ -11,6 +11,8 @@ urlpatterns = [
     #product
     path("add/product/", views.AddProductAPI.as_view()),  
     path("get/all-products/", views.GetAllProductsAPI.as_view()),  
-    path("delete/product/", views.DeleteProductAPI.as_view()),  
+    path("delete/product/", views.DeleteProductAPI.as_view()), 
+    #asset 
+    path("add/asset/", views.AddAssetAPI.as_view()),  
   
 ]

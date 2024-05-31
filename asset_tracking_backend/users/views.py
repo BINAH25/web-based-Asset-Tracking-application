@@ -205,3 +205,16 @@ class AddUserAPI(generics.GenericAPIView):
                 {"status": "failure", "detail": serializers.errors},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+            
+class GetAllUsersAPI(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated, APILevelPermissionCheck]
+    required_permissions = [ "setup.view_user"]
+
+    serializer_class = UserLoginSerializer
+    def get(self, request,*args, **kwargs):
+        users = User.objects.all().order_by('-created_at')
+        serializers = self.serializer_class(users,many=True)
+        return Response(
+            {"status": "success", "detail": serializers.data},
+            status=200
+        )       
