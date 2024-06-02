@@ -26,7 +26,7 @@ def get_auth_for_user(user):
     refresh = RefreshToken.for_user(user)
     return {
         'user':UserLoginSerializer(user).data,
-        'permission':get_all_user_permissions(user),
+        'user_permissions':get_all_user_permissions(user),
         'refresh': str(refresh),
         'token': str(refresh.access_token) 
     }
@@ -39,11 +39,12 @@ class SignInAPI(generics.GenericAPIView):
         if serializers.is_valid():
             username = serializers.data["username"]
             password = serializers.data["password"]
+            print(password)
             if User.objects.filter(username=username): 
                 user = authenticate(username=username,password=password)
                 if not user:
-                    response_data = {'message':'Invalid Credential'}
-                    return Response(response_data, status=400)
+                    response_data = {'error_message':'Invalid Credential'}
+                    return Response(response_data, status=200)
                 
                 # Generate OTP 
                 email = user.email
@@ -80,22 +81,22 @@ class SignInAPI(generics.GenericAPIView):
                     return Response(
                         {
                             "status": "error",
-                            "detail": f"Error sending email: {e}, try again",
+                            "error_message": f"Error sending email: {e}, try again",
                         },
-                        status=400,
+                        status=200,
                     )
             else:
                 return Response(
                     {
                         "status": "error",
-                        "detail": "User Not Found",
+                        "error_message": "User Not Found",
                     },
-                    status=404,
+                    status=200,
                 )
         else:
             return Response(
-                {"status": "failure", "detail": serializers.errors},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"status": "failure", "error_message": serializers.errors},
+                status=200,
             )
             
 class OTPVerifyAPI(generics.GenericAPIView):

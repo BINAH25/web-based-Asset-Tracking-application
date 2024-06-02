@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { createSlice } from '@reduxjs/toolkit';
-import { BASE_API_URI } from 'src/utils/constants';
+import { BASE_API_URI } from '../../utils/constants';
 // Retrieve the user permissions from local storage
 let userPermissions = localStorage.getItem('user_permissions')
 if (userPermissions === null || userPermissions === 'undefined') {
@@ -60,6 +60,15 @@ export const apiSlice = createApi({
                     }
                 },
             }),
+            verifyUser: builder.mutation({
+                query(body) {
+                    return {
+                        url: `/api/auth/otp/verify/`,
+                        method: 'POST',
+                        body,
+                    }
+                },
+            }),
             registerUser: builder.mutation({
                 query(body) {
                     return {
@@ -81,4 +90,4 @@ export const apiSlice = createApi({
     },
 });
 
-export const { useLoginUserMutation, useRegisterUserMutation, useLogOutUserMutation } = apiSlice;
+export const { useLoginUserMutation,useVerifyUserMutation, useRegisterUserMutation, useLogOutUserMutation } = apiSlice;
