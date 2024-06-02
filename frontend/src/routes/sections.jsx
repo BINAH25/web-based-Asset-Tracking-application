@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 
 import DashboardLayout from '../layouts/dashboard';
+export const InstititionPage =  lazy(() => import('../pages/institution'));
 export const OtpPage =  lazy(() => import('../pages/otp'));
 export const IndexPage = lazy(() => import('../pages/app'));
 export const BlogPage = lazy(() => import('../pages/blog'));
@@ -24,6 +25,7 @@ export default function Router() {
       ),
       children: [
         { path:"dashboard", element: <IndexPage /> },
+        { path: 'institution', element: <InstititionPage /> },
         { path: 'user', element: <UserPage /> },
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },

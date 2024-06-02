@@ -45,7 +45,6 @@ export default function OtpView() {
       });
       return; // Stop the function from proceeding
     }
-    //router.push('/dashboard');
     const body = { otp: otp}
     try {
       const response = await verifyUser(body).unwrap()
