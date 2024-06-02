@@ -1,4 +1,4 @@
-import {React, useState } from 'react';
+import React, { useState,useEffect } from 'react';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -10,23 +10,26 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 import Modal from '@mui/material/Modal';
+import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import { useLazyGetAllInstitutionsQuery } from '../../../features/resources/resources-api-slice';
 
-
-import { users } from '../../../_mock/user';
 
 import Iconify from '../../../components/iconify';
 import Scrollbar from '../../../components/scrollbar';
 
-import TableEmptyRows from '../../user/table-empty-rows'
+import TableEmptyRows from '../../user/table-empty-rows';
 import TableNoData from '../../user/table-no-data';
 import InstitutionTableRow from '../institution-table-row';
 import UserTableHead from '../../user/user-table-head';
 import UserTableToolbar from '../../user/user-table-toolbar';
-import { emptyRows, applyFilter, getComparator } from '../../user/utils'
+import { emptyRows, applyFilter, getComparator } from '../../user/utils';
 
 // ----------------------------------------------------------------------
-
 const style = {
     position: 'absolute',
     top: '50%',
@@ -34,22 +37,33 @@ const style = {
     transform: 'translate(-50%, -50%)',
     width: 400,
     bgcolor: 'background.paper',
-    border: '2px solid #000',
     boxShadow: 24,
     p: 4,
   };
 export default function UserPage() {
   const [page, setPage] = useState(0);
-
   const [order, setOrder] = useState('asc');
-
   const [selected, setSelected] = useState([]);
-
   const [orderBy, setOrderBy] = useState('name');
-
   const [filterName, setFilterName] = useState('');
-
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [open, setOpen] = useState(false);
+  const [location, setLocation] = useState('');
+  const [institutionType, setInstitutionType] = useState('');
+  const [getInstitutions, { data: response = [] }] = useLazyGetAllInstitutionsQuery()
+  const [institutions, setInstitutions] = useState([])
+
+
+  useEffect(() => {
+    getInstitutions();
+}, [getInstitutions]);
+
+
+useEffect(() => {
+    if (response && Array.isArray(response.detail)) {
+        setInstitutions(response.detail);
+    }
+}, [response]);
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -61,7 +75,7 @@ export default function UserPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = users.map((n) => n.usernane);
+      const newSelecteds = institutions.map((n) => n.usernane);
       setSelected(newSelecteds);
       return;
     }
@@ -101,37 +115,73 @@ export default function UserPage() {
   };
 
   const dataFiltered = applyFilter({
-    inputData: users,
+    inputData: institutions,
     comparator: getComparator(order, orderBy),
     filterName,
   });
 
   const notFound = !dataFiltered.length && !!filterName;
-  const [open, setOpen] = useState(false);
+
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const handleInstitutionTypeChange = (event) => {
+    setInstitutionType(event.target.value);
+  };
+
+
+  const renderForm = (
+    <>
+      <Stack spacing={3} sx={{ my: 2 }}>
+        <TextField name="Username" label="Username" required />
+        <TextField name="Email" label="Email" required />
+        <TextField name="Institution Name" label="Institution Name" required />
+        <TextField name="Location" label="Location" required />
+        <TextField name="Phone" label="Phone" required />
+        <FormControl fullWidth required>
+          <InputLabel id="location-label">Institution Type</InputLabel>
+          <Select
+            labelId="location-label"
+            id="location"
+            value={institutionType}
+            label="Location"
+            onChange={handleInstitutionTypeChange}
+          >
+            <MenuItem value="Tertiary">Tertiary </MenuItem>
+            <MenuItem value="Secondary">Secondary </MenuItem>
+            <MenuItem value="Basic">Basic </MenuItem>
+          </Select>
+        </FormControl>
+      </Stack>
+
+      <Button fullWidth size="large" type="submit" variant="contained" color="inherit">
+        Submit
+      </Button>
+    </>
+  );
+
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Institutions</Typography>
 
-        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill"  onClick={handleOpen}/>}>
+        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleOpen}>
           New Institution
         </Button>
         <Modal
-        open={open}
-            onClose={handleClose}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
         >
-        <Box sx={style}>
-            <Typography id="modal-modal-title" variant="h6" component="h2">
-            Text in a modal
+          <Box sx={style}
+          > 
+            <Stack alignItems="center">
+            <Typography variant="h4" sx={{ my: 1 }}>
+                Add Institution Form
             </Typography>
-            <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-            </Typography>
-        </Box>
+            </Stack>
+            {renderForm}
+          </Box>
         </Modal>
       </Stack>
 
@@ -148,17 +198,17 @@ export default function UserPage() {
               <UserTableHead
                 order={order}
                 orderBy={orderBy}
-                rowCount={users.length}
+                rowCount={institutions.length}
                 numSelected={selected.length}
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
                   { id: 'usernane', label: 'Username' },
                   { id: 'email', label: 'Email' },
-                  { id: 'institutionName', label: 'Institution Name' },
+                  { id: 'institution_name', label: 'Institution Name' },
                   { id: 'location', label: 'Location' },
                   { id: 'phone', label: 'Phone' },
-                  { id: 'institutionType', label: 'Institution Type' },
+                  { id: 'institution_type', label: 'Institution Type' },
                   { id: '' },
                 ]}
               />
@@ -170,10 +220,10 @@ export default function UserPage() {
                       key={row.id}
                       usernane={row.usernane}
                       email={row.email}
-                      institutionName={row.institutionName}
+                      institution_name={row.institution_name}
                       location={row.location}
                       phone={row.phone}
-                      institutionType={row.institutionType}
+                      institution_type={row.institution_type}
                       selected={selected.indexOf(row.usernane) !== -1}
                       handleClick={(event) => handleClick(event, row.usernane)}
                     />
@@ -181,7 +231,7 @@ export default function UserPage() {
 
                 <TableEmptyRows
                   height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, users.length)}
+                  emptyRows={emptyRows(page, rowsPerPage, institutions.length)}
                 />
 
                 {notFound && <TableNoData query={filterName} />}
@@ -193,7 +243,7 @@ export default function UserPage() {
         <TablePagination
           page={page}
           component="div"
-          count={users.length}
+          count={institutions.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}

@@ -18,10 +18,10 @@ export default function InstitutionTableRow({
   selected,
   usernane,
   email,
-  institutionName,
+  institution_name,
   location,
   phone,
-  institutionType,
+  institution_type,
   handleClick,
 }) {
   const [open, setOpen] = useState(null);
@@ -51,13 +51,13 @@ export default function InstitutionTableRow({
 
         <TableCell>{email}</TableCell>
 
-        <TableCell>{institutionName}</TableCell>
+        <TableCell>{institution_name}</TableCell>
 
         <TableCell>{location}</TableCell>
 
         <TableCell>{phone}</TableCell>
 
-        <TableCell>{institutionType}</TableCell>
+        <TableCell>{institution_type}</TableCell>
 
         <TableCell align="right">
           <IconButton onClick={handleOpenMenu}>
@@ -94,9 +94,9 @@ InstitutionTableRow.propTypes = {
     usernane: PropTypes.any,
     handleClick: PropTypes.func,
     email: PropTypes.any,
-    institutionName: PropTypes.any,
+    institution_name: PropTypes.any,
     location: PropTypes.any,
     selected: PropTypes.any,
     phone: PropTypes.any,
-    institutionType: PropTypes.any,
+    institution_type: PropTypes.any,
 };
