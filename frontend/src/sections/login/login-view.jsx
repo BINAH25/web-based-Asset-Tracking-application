@@ -10,6 +10,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import LoadingButton from '@mui/lab/LoadingButton';
+import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import { alpha, useTheme } from '@mui/material/styles';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -36,8 +37,18 @@ export default function LoginView() {
 
   const handleLogin = async (event) => {
     event.preventDefault()
+    if (!username || !password) {
+      toast({
+        position: 'top-center',
+        title: 'Missing Fields',
+        description: 'Username and password are required',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+      return; // Stop the function from proceeding
+    }
     //router.push('/dashboard');
-    console.log(username,password)
     const body = { username: username, password: password }
     try {
       const response = await loginUser(body).unwrap()
@@ -72,12 +83,14 @@ export default function LoginView() {
         name="Username" 
         label="Username"
         onChange={(e) => setUsername(e.target.value)}
+        required
          />
 
         <TextField
           name="password"
           onChange={(e) => setPassword(e.target.value)}
           label="Password"
+          required
           type={showPassword ? 'text' : 'password'}
           InputProps={{
             endAdornment: (
@@ -97,7 +110,7 @@ export default function LoginView() {
         </Link>
       </Stack>
 
-      <LoadingButton
+      <Button
         fullWidth
         size="large"
         type="submit"
@@ -108,7 +121,7 @@ export default function LoginView() {
       >
         {isLoading && <CircularProgress size={30}/>}
         Login
-      </LoadingButton>
+      </Button>
     </>
   );
 
