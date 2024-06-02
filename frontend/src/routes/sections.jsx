@@ -2,7 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 
 import DashboardLayout from '../layouts/dashboard';
-
+export const OtpPage =  lazy(() => import('../pages/otp'));
 export const IndexPage = lazy(() => import('../pages/app'));
 export const BlogPage = lazy(() => import('../pages/blog'));
 export const UserPage = lazy(() => import('../pages/user'));
@@ -32,6 +32,10 @@ export default function Router() {
     {
       path: '/',
       element: <LoginPage />,
+    },
+    {
+      path: '/verify-otp',
+      element: <OtpPage />,
     },
     {
       path: '404',

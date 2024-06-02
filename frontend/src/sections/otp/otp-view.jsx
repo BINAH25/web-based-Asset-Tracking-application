@@ -1,47 +1,44 @@
 import { useState } from 'react';
 import { Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
-import { useLoginUserMutation } from '../../features/authentication/authentication';
+import { useVerifyUserMutation, setUser as setStoreUser, setToken, setUserPermissions } from '../../features/authentication/authentication';
 import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import { alpha, useTheme } from '@mui/material/styles';
-import InputAdornment from '@mui/material/InputAdornment';
 import { useToast } from '@chakra-ui/react'
 import { useRouter } from '../../routes/hooks';
 
 import { bgGradient } from '../../theme/css';
 
 import Logo from '../../components/logo';
-import Iconify from '../../components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function LoginView() {
+export default function OtpView() {
   const theme = useTheme();
   const toast = useToast()
 
   const router = useRouter();
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [loginUser, { isLoading }] = useLoginUserMutation()
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  const [verifyUser, { isLoading }] = useVerifyUserMutation()
+  const [otp, setOpt] = useState('')
+
+  const loggedInUser = useSelector((state) => state.authentication.user);
+  const [user, setUser] = useState(loggedInUser)
+  const dispatch = useDispatch();
 
   const handleLogin = async (event) => {
     event.preventDefault()
-    if (!username || !password) {
+    if (!otp ) {
       toast({
         position: 'top-center',
-        title: 'Missing Fields',
-        description: 'Username and password are required',
+        title: 'Missing Field',
+        description: 'otp is required',
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -49,9 +46,9 @@ export default function LoginView() {
       return; // Stop the function from proceeding
     }
     //router.push('/dashboard');
-    const body = { username: username, password: password }
+    const body = { otp: otp}
     try {
-      const response = await loginUser(body).unwrap()
+      const response = await verifyUser(body).unwrap()
       if (response['error_message'] != null) {
         toast({
             position: 'top-center',
@@ -62,15 +59,23 @@ export default function LoginView() {
             isClosable: true,
         })
     } else {
-      toast({
-        position: 'top-center',
-        title: 'OTP Sent',
-        description: response['message'],
-        status: 'success',
-        duration: 10000,
-        isClosable: true,
-    })
-      router.push('/verify-otp');
+        localStorage.setItem('token', response['token'])
+        localStorage.setItem('user', JSON.stringify(response['user']))
+        localStorage.setItem('user_permissions', JSON.stringify(response['user_permissions']))
+
+        toast({
+            position: 'top-center',
+            title: 'Login successful',
+            description: 'You have successfully logged in',
+            status: 'success',
+            duration: 2000,
+            isClosable: true,
+        })
+        dispatch(setStoreUser(response['user']));
+        dispatch(setToken(setToken['token']));
+        dispatch(setUserPermissions(response['user_permissions']))
+        setUser(response['user'])
+      router.push('/dashboard');
     }
     } catch (err) {
       toast({
@@ -86,38 +91,17 @@ export default function LoginView() {
 
   const renderForm = (
     <>
-      <Stack spacing={3}>
+      <Stack spacing={3} sx={{ my: 3 }}>
         <TextField 
-        name="Username" 
-        label="Username"
-        onChange={(e) => setUsername(e.target.value)}
+        name="opt" 
+        label="otp"
+        onChange={(e) => setOpt(e.target.value)}
         required
          />
-
-        <TextField
-          name="password"
-          onChange={(e) => setPassword(e.target.value)}
-          label="Password"
-          required
-          type={showPassword ? 'text' : 'password'}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                  <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
+        
       </Stack>
 
-      <Stack direction="row" alignItems="center" justifyContent="flex-end" sx={{ my: 3 }}>
-        <Link variant="subtitle2" underline="hover">
-          Forgot password?
-        </Link>
-      </Stack>
-
+    
       <Button
         fullWidth
         size="large"
@@ -128,7 +112,7 @@ export default function LoginView() {
         disabled={isLoading}
       >
         {isLoading && <CircularProgress size={30}/>}
-        Login
+        Verify
       </Button>
     </>
   );
@@ -161,7 +145,7 @@ export default function LoginView() {
         >
           <Stack alignItems="center">
             <Typography variant="h4" sx={{ my: 3 }}>
-              Welcome Sign In
+              Enter the OTP sent to your email
             </Typography>
           </Stack>
           {renderForm}

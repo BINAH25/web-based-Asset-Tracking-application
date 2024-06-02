@@ -39,7 +39,6 @@ class SignInAPI(generics.GenericAPIView):
         if serializers.is_valid():
             username = serializers.data["username"]
             password = serializers.data["password"]
-            print(password)
             if User.objects.filter(username=username): 
                 user = authenticate(username=username,password=password)
                 if not user:
@@ -49,6 +48,7 @@ class SignInAPI(generics.GenericAPIView):
                 # Generate OTP 
                 email = user.email
                 otp = random.randint(1000, 9999)
+                print(otp)
                 otp_expiry = timezone.now() + datetime.timedelta(minutes=10)
                 user.otp = otp
                 user.otp_expiration = otp_expiry
@@ -70,10 +70,7 @@ class SignInAPI(generics.GenericAPIView):
                     return Response(
                         {
                             "status": "success",
-                            "detail": "OTP send to your email",
-                            "data": {
-                                "email": email,
-                            },
+                            "message": f"OTP send to your email {email}",
                         },
                         status=status.HTTP_200_OK,
                     )
@@ -115,12 +112,12 @@ class OTPVerifyAPI(generics.GenericAPIView):
                     user.save()
                     user_data = get_auth_for_user(user)
                     return Response(user_data, status=status.HTTP_200_OK)
-                return Response({"message": "expired OTP."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"error_message": "expired OTP."}, status=200)
             except User.DoesNotExist:
-                return Response({"message": "Invalid OTP."}, status=status.HTTP_404_NOT_FOUND)
+                return Response({"error_message": "Invalid OTP."}, status=200)
         return Response(
-                {"status": "failure", "detail": serializers.errors},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"status": "failure", "error_message": serializers.errors},
+                status=200,
             )
 
 class AddInstitutionAPI(generics.GenericAPIView):
