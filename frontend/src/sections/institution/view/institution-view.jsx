@@ -67,8 +67,8 @@ export default function UserPage() {
 
 
 useEffect(() => {
-    if (response && Array.isArray(response.detail)) {
-        setInstitutions(response.detail);
+    if (response && Array.isArray(response.success_message)) {
+        setInstitutions(response.success_message);
     }
 }, [response]);
 

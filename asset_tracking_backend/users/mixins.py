@@ -9,7 +9,7 @@ class SimpleCrudMixin(generics.GenericAPIView):
         objects = self.model_class.objects.all().order_by('-created_at')
         serializers = self.serializer_class(objects,many=True)
         return Response(
-            {"status": "success", "detail": serializers.data},
+            {"status": "success", "success_message": serializers.data},
             status=200
         )          
 
