@@ -13,7 +13,6 @@ from django.utils.html import strip_tags
 from django.core.mail import send_mail, EmailMultiAlternatives
 from utils.permissions import APILevelPermissionCheck
 from utils.user_permissions import get_all_user_permissions
-from utils.form_error import *
 from django.shortcuts import HttpResponse
 from django.db.models import Q
 from django.conf import settings
@@ -21,6 +20,7 @@ import random
 from django.utils import timezone
 import datetime
 from users.forms import *
+from users.mixins import SimpleCrudMixin
 User = get_user_model()
 # Create your views here.
 
@@ -122,41 +122,17 @@ class OTPVerifyAPI(generics.GenericAPIView):
                 status=200,
             )
 
-class AddInstitutionAPI(generics.GenericAPIView):
+class InstitutionAPI(SimpleCrudMixin):
     """ check for require permission for adding a institution """
     permission_classes = [permissions.IsAuthenticated,APILevelPermissionCheck]
-    required_permissions = [ "setup.add_institution"]
-
+    add_permissions = ["setup.add_institution"]
+    delete_permissions = ["setup.delete_institution"]
+    model_class = Institution
     serializer_class = AddInstitutionSerializer
     form_class = InstitutionForm
 
-    def post(self, request,*args, **kwargs):
-        """ for adding  institution"""
-        form = self.form_class(request.data)
-        if form.is_valid():
-            form.save()
-            return Response(self.serializer_class(form.instance).data,
-                    status=status.HTTP_201_CREATED,
-                )
-        else:
-            return Response(
-                {"error_message": get_errors_from_form(form)},
-                status=200,
-            )
-            
-  
-class GetAllInstitutionsAPI(generics.GenericAPIView):
-    permission_classes = [permissions.IsAuthenticated, APILevelPermissionCheck]
-    required_permissions = [ "setup.view_institution"]
-
-    serializer_class = AddInstitutionSerializer
-    def get(self, request,*args, **kwargs):
-        institutions = Institution.objects.all().order_by('-created_at')
-        serializers = self.serializer_class(institutions,many=True)
-        return Response(
-            {"status": "success", "detail": serializers.data},
-            status=200
-        )          
+   
+ 
             
 class AddUserAPI(generics.GenericAPIView):
     """ check for require permission for adding a user """
@@ -173,22 +149,21 @@ class AddUserAPI(generics.GenericAPIView):
             try:    
                 user = User.objects.create_user(username=institution.usernane, email=institution.email, password=password, institution=institution,created_by=request.user)
                 user.save()
+                institution = institution.status = "Completed"
+                institution.save()
                 return Response(
-                    {
-                        "status": "success",
-                        "detail": "User added Successfully",
-                    },
+                    serializers.data,
                     status=status.HTTP_201_CREATED,
                 )
             except Institution.DoesNotExist:
                 return Response(
-                    {"status": "error", "detail":"institution Not Found"},
+                    {"status": "error", "error_message":"institution Not Found"},
                     status=404
                 )
         else:
             return Response(
-                {"status": "failure", "detail": serializers.errors},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"status": "failure", "error_message": serializers.errors},
+                status=200,
             )
             
 class GetAllUsersAPI(generics.GenericAPIView):

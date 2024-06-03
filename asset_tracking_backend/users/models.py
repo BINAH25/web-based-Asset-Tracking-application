@@ -19,7 +19,7 @@ class Institution(models.Model):
     institution_type = models.CharField(
         max_length=50,
         choices=INSTITITION_TYPES)
-
+    status = models.CharField(max_length=100, blank=True, null=True, default="New")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
