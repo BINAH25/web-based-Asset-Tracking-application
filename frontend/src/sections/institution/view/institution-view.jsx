@@ -16,12 +16,12 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import { useLazyGetAllInstitutionsQuery } from '../../../features/resources/resources-api-slice';
-
-
+import { useLazyGetAllInstitutionsQuery,usePutInstitutionMutation } from '../../../features/resources/resources-api-slice';
+import { useToast } from '@chakra-ui/react'
+import { useRouter } from '../../../routes/hooks';
 import Iconify from '../../../components/iconify';
 import Scrollbar from '../../../components/scrollbar';
-
+import CircularProgress from '@mui/material/CircularProgress';
 import TableEmptyRows from '../../user/table-empty-rows';
 import TableNoData from '../../user/table-no-data';
 import InstitutionTableRow from '../institution-table-row';
@@ -41,17 +41,24 @@ const style = {
     p: 4,
   };
 export default function UserPage() {
-  const [page, setPage] = useState(0);
-  const [order, setOrder] = useState('asc');
-  const [selected, setSelected] = useState([]);
-  const [orderBy, setOrderBy] = useState('name');
-  const [filterName, setFilterName] = useState('');
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [open, setOpen] = useState(false);
-  const [location, setLocation] = useState('');
-  const [institutionType, setInstitutionType] = useState('');
-  const [getInstitutions, { data: response = [] }] = useLazyGetAllInstitutionsQuery()
-  const [institutions, setInstitutions] = useState([])
+    const toast = useToast()
+
+    const [page, setPage] = useState(0);
+    const [order, setOrder] = useState('asc');
+    const [selected, setSelected] = useState([]);
+    const [orderBy, setOrderBy] = useState('name');
+    const [filterName, setFilterName] = useState('');
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [open, setOpen] = useState(false);
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
+    const [institutionName, setInstitutionName] = useState('');
+    const [phone, setPhone] = useState('');
+    const [location, setLocation] = useState('');
+    const [institutionType, setInstitutionType] = useState('');
+    const [getInstitutions, { data: response = [] }] = useLazyGetAllInstitutionsQuery()
+    const [addInstitutions,  { isLoading, error }] = usePutInstitutionMutation()
+    const [institutions, setInstitutions] = useState([])
 
 
   useEffect(() => {
@@ -129,14 +136,99 @@ useEffect(() => {
   };
 
 
+  const handleAddInstitution = async (event) => {
+    event.preventDefault()
+    if (!username || !email || !institutionName || !location || !phone || !institutionType) {
+      toast({
+        position: 'top-center',
+        title: 'Missing Fields',
+        description: 'All fields are required',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+      return; // Stop the function from proceeding
+    }
+    const body = { 
+        username: username, 
+        email: email,
+        institution_name: institutionName,
+        location: location,
+        phone: phone,
+        institution_type: institutionType
+    }
+
+    try {
+        const response = await addInstitutions(body).unwrap()
+        console.log(response)
+
+        if (response['error_message'] != null) {
+          toast({
+              position: 'top-center',
+              title: `An error occurred`,
+              description: response["error_message"],
+              status: 'error',
+              duration: 5000,
+              isClosable: true,
+          })
+      } else {
+        toast({
+          position: 'top-center',
+          title: 'OTP Sent',
+          description: "Institution added successfully",
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+      })
+        setInstitutions((prevInstitutions) => [response, ...prevInstitutions]);
+        handleClose()
+      }
+      } catch (err) {
+        toast({
+          position: 'top-center',
+          title: `An error occurred`,
+          description: err.originalStatus,
+          status: 'error',
+          duration: 2000,
+          isClosable: true,
+      })
+      }
+
+  }
+
   const renderForm = (
     <>
       <Stack spacing={3} sx={{ my: 2 }}>
-        <TextField name="Username" label="Username" required />
-        <TextField name="Email" label="Email" required />
-        <TextField name="Institution Name" label="Institution Name" required />
-        <TextField name="Location" label="Location" required />
-        <TextField name="Phone" label="Phone" required />
+        <TextField 
+        name="Username" 
+        label="Username"
+        onChange={(e) => setUsername(e.target.value)}
+        required />
+
+        <TextField
+        name="Email"
+        label="Email"
+        onChange={(e) => setEmail(e.target.value)}
+        required />
+
+        <TextField
+        name="Institution Name"
+        label="Institution Name"
+        onChange={(e) => setInstitutionName(e.target.value)}
+        required />
+
+        <TextField 
+        name="Location" 
+        label="Location" 
+        onChange={(e) => setLocation(e.target.value)}
+        required />
+
+        <TextField 
+        name="Phone" 
+        label="Phone"
+        onChange={(e) => setPhone(e.target.value)}
+        required />
+
         <FormControl fullWidth required>
           <InputLabel id="location-label">Institution Type</InputLabel>
           <Select
@@ -153,7 +245,15 @@ useEffect(() => {
         </FormControl>
       </Stack>
 
-      <Button fullWidth size="large" type="submit" variant="contained" color="inherit">
+      <Button 
+      fullWidth size="large" 
+      type="submit" 
+      variant="contained" 
+      color="inherit"
+      disabled={isLoading}
+      onClick={handleAddInstitution}
+      >
+        {isLoading && <CircularProgress size={30}/>}
         Submit
       </Button>
     </>
@@ -203,7 +303,7 @@ useEffect(() => {
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
-                  { id: 'usernane', label: 'Username' },
+                  { id: 'username', label: 'Username' },
                   { id: 'email', label: 'Email' },
                   { id: 'institution_name', label: 'Institution Name' },
                   { id: 'location', label: 'Location' },
@@ -218,7 +318,7 @@ useEffect(() => {
                   .map((row) => (
                     <InstitutionTableRow
                       key={row.id}
-                      usernane={row.usernane}
+                      username={row.username}
                       email={row.email}
                       institution_name={row.institution_name}
                       location={row.location}

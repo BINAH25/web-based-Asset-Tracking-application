@@ -55,6 +55,16 @@ export const resourceApiSlice = createApi({
             
 
             // institutions
+            putInstitution: builder.mutation({
+                query(body) {
+                    return {
+                        url: `/api/add/institution/`,
+                        method: 'POST',
+                        body,
+                    }
+                },
+            }),
+
             getAllInstitutions: builder.query({
                 query() {
                     return `/api/get/all/institutions/`;
@@ -85,7 +95,7 @@ export const {
 
     // Institutions
     useLazyGetAllInstitutionsQuery,
-   
+    usePutInstitutionMutation,
 
     
 

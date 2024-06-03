@@ -16,7 +16,7 @@ import Iconify from '../../components/iconify';
 
 export default function InstitutionTableRow({
   selected,
-  usernane,
+  username,
   email,
   institution_name,
   location,
@@ -44,7 +44,7 @@ export default function InstitutionTableRow({
         <TableCell component="th" scope="row" padding="none">
           <Stack direction="row" alignItems="center" spacing={2}>
             <Typography variant="subtitle2" noWrap>
-              {usernane}
+              {username}
             </Typography>
           </Stack>
         </TableCell>
@@ -91,7 +91,7 @@ export default function InstitutionTableRow({
 }
 
 InstitutionTableRow.propTypes = {
-    usernane: PropTypes.any,
+    username: PropTypes.any,
     handleClick: PropTypes.func,
     email: PropTypes.any,
     institution_name: PropTypes.any,

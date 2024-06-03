@@ -10,7 +10,7 @@ INSTITITION_TYPES = [
 ]
 
 class Institution(models.Model):
-    usernane = models.CharField(max_length=254, unique=True)
+    username = models.CharField(max_length=254, unique=True)
     email = models.EmailField(max_length=200, unique=True, blank=True, null=True)
     institution_name = models.CharField(max_length=254)
     location = models.CharField(max_length=254, blank=True, null=True)

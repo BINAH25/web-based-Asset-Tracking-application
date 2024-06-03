@@ -13,12 +13,14 @@ from django.utils.html import strip_tags
 from django.core.mail import send_mail, EmailMultiAlternatives
 from utils.permissions import APILevelPermissionCheck
 from utils.user_permissions import get_all_user_permissions
+from utils.form_error import *
 from django.shortcuts import HttpResponse
 from django.db.models import Q
 from django.conf import settings
 import random
 from django.utils import timezone
 import datetime
+from users.forms import *
 User = get_user_model()
 # Create your views here.
 
@@ -126,35 +128,20 @@ class AddInstitutionAPI(generics.GenericAPIView):
     required_permissions = [ "setup.add_institution"]
 
     serializer_class = AddInstitutionSerializer
+    form_class = InstitutionForm
+
     def post(self, request,*args, **kwargs):
         """ for adding  institution"""
-        serializers = self.serializer_class(data=request.data)
-        if serializers.is_valid():
-            username = serializers.validated_data['username']
-            email = serializers.validated_data['email']
-            if Institution.objects.filter(username=username):
-              return Response(
-                    {"status": "failure", "detail": "username Already Exist"},
-                    status=400,
-                )  
-            if Institution.objects.filter(email=email):
-              return Response(
-                    {"status": "failure", "detail": "email Already Exist"},
-                    status=400,
-                )  
-
-            serializers.save()
-            return Response(
-                    {
-                        "status": "success",
-                        "detail": "Institution added Successfully",
-                    },
+        form = self.form_class(request.data)
+        if form.is_valid():
+            form.save()
+            return Response(self.serializer_class(form.instance).data,
                     status=status.HTTP_201_CREATED,
                 )
         else:
             return Response(
-                {"status": "failure", "detail": serializers.errors},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"error_message": get_errors_from_form(form)},
+                status=200,
             )
             
   

@@ -10,6 +10,7 @@ class AddInstitutionSerializer(serializers.ModelSerializer):
         fields ='__all__'
         
         
+  
 class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
