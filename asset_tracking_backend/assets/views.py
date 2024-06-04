@@ -11,75 +11,70 @@ from utils.permissions import APILevelPermissionCheck
 from utils.user_permissions import get_all_user_permissions
 from django.shortcuts import HttpResponse
 from django.db.models import Q
+from assets.forms import *
+from users.mixins import SimpleCrudMixin
+from utils.form_error import get_errors_from_form
 User = get_user_model()
 # Create your views here.
 
-class AddTagAPI(generics.GenericAPIView):
+class AddTagAPI(SimpleCrudMixin):
     """ check for require permission for adding a tag """
     permission_classes = [permissions.IsAuthenticated,APILevelPermissionCheck]
     required_permissions = [ "setup.add_tag"]
 
-    serializer_class = AddTagSerializer
+    serializer_class = GettAllTagSerializer
+    form_class = TagForm
     def post(self, request,*args, **kwargs):
-        """ for adding  tag"""
-        serializers = self.serializer_class(data=request.data)
-        if serializers.is_valid():
-            new_tag = serializers.save(created_by=request.user) 
-            return Response(
-                    {
-                        "status": "success",
-                        "detail": "tag added Successfully",
-                    },
+        form = self.form_class(request.data)
+        if form.is_valid():
+            tag = form.save()
+            tag.created_by = request.user
+            tag.save()
+            return Response(self.serializer_class(form.instance).data,
                     status=status.HTTP_201_CREATED,
                 )
         else:
             return Response(
-                {"status": "failure", "detail": serializers.errors},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"error_message": get_errors_from_form(form)},
+                status=200,
             )
-            
+    
+
   
-class GetAllTagsAPI(generics.GenericAPIView):
+class TagsAPI(SimpleCrudMixin):
     permission_classes = [permissions.IsAuthenticated, APILevelPermissionCheck]
-    required_permissions = [ "setup.view_tag"]
+    required_permissions = [ "setup.view_tag", "setup.delete_tag"]
 
     serializer_class = GettAllTagSerializer
-    def get(self, request,*args, **kwargs):
-        tags = Tag.objects.all().order_by('-created_at')
-        serializers = self.serializer_class(tags,many=True)
-        return Response(
-            {"status": "success", "detail": serializers.data},
-            status=200
-        )          
+    model_class = Tag
             
-            
-class DeleteTagAPI(generics.GenericAPIView):
-    permission_classes = [permissions.IsAuthenticated,APILevelPermissionCheck]
-    required_permissions = [ "setup.delete_tag"]
-    serializer_class = DeleteTagSerializer
-    def delete(self, request, *args, **kwargs):
-        serializers = self.serializer_class(data=request.data)
-        if serializers.is_valid():
-            id = serializers.data['tag_id']
-            try:
-                tag = Tag.objects.get(id=id)
-                tag.delete()
-                return Response(
-                    {
-                        "status": "success",
-                        "detail": "Tag Deleted Successfully",
-                    },
-                    status=status.HTTP_200_OK,
-                )
-            except Tag.DoesNotExist:
-                return Response(
-                    {"status": "error", "detail":"Tag Not Found"},
-                    status=404
-                )
-        return Response(
-            {"status": "failure", "detail": serializers.errors},
-                status=status.HTTP_400_BAD_REQUEST,
-        )
+# class DeleteTagAPI(generics.GenericAPIView):
+#     permission_classes = [permissions.IsAuthenticated,APILevelPermissionCheck]
+#     required_permissions = [ "setup.delete_tag"]
+#     serializer_class = DeleteTagSerializer
+#     def delete(self, request, *args, **kwargs):
+#         serializers = self.serializer_class(data=request.data)
+#         if serializers.is_valid():
+#             id = serializers.data['tag_id']
+#             try:
+#                 tag = Tag.objects.get(id=id)
+#                 tag.delete()
+#                 return Response(
+#                     {
+#                         "status": "success",
+#                         "detail": "Tag Deleted Successfully",
+#                     },
+#                     status=status.HTTP_200_OK,
+#                 )
+#             except Tag.DoesNotExist:
+#                 return Response(
+#                     {"status": "error", "detail":"Tag Not Found"},
+#                     status=404
+#                 )
+#         return Response(
+#             {"status": "failure", "detail": serializers.errors},
+#                 status=status.HTTP_400_BAD_REQUEST,
+#         )
             
             
 class AddProductAPI(generics.GenericAPIView):

@@ -12,11 +12,7 @@ import TablePagination from '@mui/material/TablePagination';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import { useLazyGetAllInstitutionsQuery,usePutInstitutionMutation } from '../../../features/resources/resources-api-slice';
+import { useLazyGetAllTagsQuery,usePutTagMutation } from '../../../features/resources/resources-api-slice';
 import { useToast } from '@chakra-ui/react'
 import Iconify from '../../../components/iconify';
 import Scrollbar from '../../../components/scrollbar';
@@ -49,25 +45,21 @@ export default function TagPage() {
     const [filterName, setFilterName] = useState('');
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [open, setOpen] = useState(false);
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [institutionName, setInstitutionName] = useState('');
-    const [phone, setPhone] = useState('');
-    const [location, setLocation] = useState('');
-    const [institutionType, setInstitutionType] = useState('');
-    const [getInstitutions, { data: response = [] }] = useLazyGetAllInstitutionsQuery()
-    const [addInstitutions,  { isLoading, error }] = usePutInstitutionMutation()
-    const [institutions, setInstitutions] = useState([])
+    const [tagID, setTagID] = useState('');
+    const [tagName, setTagName] = useState('');
+    const [getTags, { data: response = [],error: errorGettingTags }] = useLazyGetAllTagsQuery()
+    const [addTag,  { isLoading, error }] = usePutTagMutation()
+    const [tags, setTags] = useState([])
 
 
   useEffect(() => {
-    getInstitutions();
-}, [getInstitutions]);
+    getTags();
+}, [getTags]);
 
 
 useEffect(() => {
     if (response && Array.isArray(response.success_message)) {
-        setInstitutions(response.success_message);
+        setTags(response.success_message);
     }
 }, [response]);
 
@@ -81,7 +73,7 @@ useEffect(() => {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = institutions.map((n) => n.usernane);
+      const newSelecteds = tags.map((n) => n.usernane);
       setSelected(newSelecteds);
       return;
     }
@@ -121,7 +113,7 @@ useEffect(() => {
   };
 
   const dataFiltered = applyFilter({
-    inputData: institutions,
+    inputData: tags,
     comparator: getComparator(order, orderBy),
     filterName,
   });
@@ -130,14 +122,11 @@ useEffect(() => {
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-  const handleInstitutionTypeChange = (event) => {
-    setInstitutionType(event.target.value);
-  };
+  
 
-
-  const handleAddInstitution = async (event) => {
+  const handleAddTag = async (event) => {
     event.preventDefault()
-    if (!username || !email || !institutionName || !location || !phone || !institutionType) {
+    if (!tagID || !tagName) {
       toast({
         position: 'top-center',
         title: 'Missing Fields',
@@ -146,19 +135,15 @@ useEffect(() => {
         duration: 5000,
         isClosable: true,
       });
-      return; // Stop the function from proceeding
+      return; 
     }
     const body = { 
-        username: username, 
-        email: email,
-        institution_name: institutionName,
-        location: location,
-        phone: phone,
-        institution_type: institutionType
+        tag_id: tagID, 
+        tag_name: tagName,
     }
 
     try {
-        const response = await addInstitutions(body).unwrap()
+        const response = await addTag(body).unwrap()
 
         if (response['error_message'] != null) {
           toast({
@@ -173,12 +158,12 @@ useEffect(() => {
         toast({
           position: 'top-center',
           title: 'OTP Sent',
-          description: "Institution added successfully",
+          description: "Tag added successfully",
           status: 'success',
           duration: 5000,
           isClosable: true,
       })
-        setInstitutions((prevInstitutions) => [response, ...prevInstitutions]);
+        setTags((prevTags) => [response, ...prevTags]);
         handleClose()
       }
       } catch (err) {
@@ -194,19 +179,45 @@ useEffect(() => {
 
   }
 
+  useEffect(() => {
+    if (errorGettingTags) {
+        toast({
+            position: 'top-center',
+            title: `An error occurred: ${errorGettingTags.originalStatus}`,
+            description: errorGettingTags.status,
+            status: 'error',
+            duration: 2000,
+            isClosable: true,
+        })
+    }
+}, [errorGettingTags, toast])
+
+  useEffect(() => {
+    if (error) {
+        toast({
+            position: 'top-center',
+            title: `An error occurred: ${error.originalStatus}`,
+            description: error.status,
+            status: 'error',
+            duration: 2000,
+            isClosable: true,
+        })
+    }
+}, [error, toast])
+
   const renderForm = (
     <>
       <Stack spacing={3} sx={{ my: 2 }}>
         <TextField 
-        name="Username" 
-        label="Username"
-        onChange={(e) => setUsername(e.target.value)}
+        name="Tag ID" 
+        label="Tag ID"
+        onChange={(e) => setTagID(e.target.value)}
         required />
 
         <TextField
-        name="Email"
-        label="Email"
-        onChange={(e) => setEmail(e.target.value)}
+        name="Tag Name"
+        label="Tag Name"
+        onChange={(e) => setTagName(e.target.value)}
         required />
         
       </Stack>
@@ -217,7 +228,7 @@ useEffect(() => {
       variant="contained" 
       color="inherit"
       disabled={isLoading}
-      onClick={handleAddInstitution}
+      onClick={handleAddTag}
       >
         {isLoading && <CircularProgress size={30}/>}
         Add Tag
@@ -264,7 +275,7 @@ useEffect(() => {
               <UserTableHead
                 order={order}
                 orderBy={orderBy}
-                rowCount={institutions.length}
+                rowCount={tags.length}
                 numSelected={selected.length}
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
@@ -283,7 +294,7 @@ useEffect(() => {
                       key={row.id}
                       tag_id={row.tag_id}
                       tag_name={row.tag_name}
-                      created_by={row.created_by}
+                      created_by={row.created_by.username}
                       selected={selected.indexOf(row.usernane) !== -1}
                       handleClick={(event) => handleClick(event, row.usernane)}
                     />
@@ -291,7 +302,7 @@ useEffect(() => {
 
                 <TableEmptyRows
                   height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, institutions.length)}
+                  emptyRows={emptyRows(page, rowsPerPage, tags.length)}
                 />
 
                 {notFound && <TableNoData query={filterName} />}
@@ -303,7 +314,7 @@ useEffect(() => {
         <TablePagination
           page={page}
           component="div"
-          count={institutions.length}
+          count={tags.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}

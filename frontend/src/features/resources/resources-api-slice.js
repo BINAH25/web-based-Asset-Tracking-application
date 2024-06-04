@@ -78,7 +78,23 @@ export const resourceApiSlice = createApi({
                     return `/api/get/all/new/institutions/`;
                 },
             }),
-            
+
+            // tags
+
+            putTag: builder.mutation({
+                query(body) {
+                    return {
+                        url: `/api/assets/add/tag/`,
+                        method: 'POST',
+                        body,
+                    }
+                },
+            }),
+            getAllTags: builder.query({
+                query() {
+                    return `/api/assets/tags/`;
+                },
+            }),
 
            
         
@@ -106,8 +122,9 @@ export const {
     useLazyGetAllNewInstitutionsQuery,
     usePutInstitutionMutation,
 
-    
-
+    // tags
+    useLazyGetAllTagsQuery,
+    usePutTagMutation,
     
 
    
