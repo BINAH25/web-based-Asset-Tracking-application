@@ -165,20 +165,29 @@ class AddUserAPI(generics.GenericAPIView):
                 {"status": "failure", "error_message": serializers.errors},
                 status=200,
             )
-            
-class GetAllUsersAPI(generics.GenericAPIView):
+ 
+class GetAllNewInstitutionAPI(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated, APILevelPermissionCheck]
+    required_permissions = [ "setup.view_institution"]
+
+    serializer_class = AddInstitutionSerializer
+
+    def get(self, request,*args, **kwargs):
+        institutions = Institution.objects.filter(status="New").all().order_by('-created_at')
+        serializers = self.serializer_class(institutions,many=True)
+        return Response(
+            {"status": "success", "success_message": serializers.data},
+            status=200
+        )       
+                   
+class UsersAPI(SimpleCrudMixin):
     permission_classes = [permissions.IsAuthenticated, APILevelPermissionCheck]
     required_permissions = [ "setup.view_user"]
 
     serializer_class = UserLoginSerializer
-    def get(self, request,*args, **kwargs):
-        users = User.objects.all().order_by('-created_at')
-        serializers = self.serializer_class(users,many=True)
-        return Response(
-            {"status": "success", "detail": serializers.data},
-            status=200
-        )       
-        
+    model_class = User
+    
+
 class DeleteInstitutionAPI(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated,APILevelPermissionCheck]
     required_permissions = [ "setup.delete_institution"]

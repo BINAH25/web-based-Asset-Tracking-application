@@ -8,6 +8,7 @@ urlpatterns = [
     path("auth/otp/verify/", views.OTPVerifyAPI.as_view()),
     path("auth/register/", views.AddUserAPI.as_view()),
     path("institutions/", views.InstitutionAPI.as_view()),
-    path("get/all/users/", views.GetAllUsersAPI.as_view()),
+    path("get/all/new/institutions/", views.GetAllNewInstitutionAPI.as_view()),
+    path("users/", views.UsersAPI.as_view()),
   
 ]

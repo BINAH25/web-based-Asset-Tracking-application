@@ -18,7 +18,6 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { useLazyGetAllInstitutionsQuery,usePutInstitutionMutation } from '../../../features/resources/resources-api-slice';
 import { useToast } from '@chakra-ui/react'
-import { useRouter } from '../../../routes/hooks';
 import Iconify from '../../../components/iconify';
 import Scrollbar from '../../../components/scrollbar';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -26,7 +25,7 @@ import TableEmptyRows from '../../user/table-empty-rows';
 import TableNoData from '../../user/table-no-data';
 import InstitutionTableRow from '../institution-table-row';
 import UserTableHead from '../../user/user-table-head';
-import UserTableToolbar from '../../user/user-table-toolbar';
+import InstitutionTableToolbar from '../institution-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../../user/utils';
 
 // ----------------------------------------------------------------------
@@ -286,7 +285,7 @@ useEffect(() => {
       </Stack>
 
       <Card>
-        <UserTableToolbar
+        <InstitutionTableToolbar
           numSelected={selected.length}
           filterName={filterName}
           onFilterName={handleFilterByName}

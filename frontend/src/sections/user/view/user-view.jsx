@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, useEffect} from 'react';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -9,8 +9,7 @@ import TableBody from '@mui/material/TableBody';
 import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
-
-import { users } from '../../../_mock/user';
+import { useLazyGetUsersQuery } from '../../../features/resources/resources-api-slice';
 
 import Iconify from '../../../components/iconify';
 import Scrollbar from '../../../components/scrollbar';
@@ -36,6 +35,19 @@ export default function UserPage() {
   const [filterName, setFilterName] = useState('');
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [getusers, { data: response = [] }] = useLazyGetUsersQuery()
+  const [users, SetUsers] = useState([])
+
+  console.log(users)
+  useEffect(() => {
+    getusers();
+}, [getusers]);
+
+useEffect(() => {
+  if (response && Array.isArray(response.success_message)) {
+    SetUsers(response.success_message);
+  }
+}, [response]);
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -47,18 +59,18 @@ export default function UserPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = users.map((n) => n.name);
+      const newSelecteds = users.map((n) => n.username);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
+  const handleClick = (event, username) => {
+    const selectedIndex = selected.indexOf(username);
     let newSelected = [];
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
+      newSelected = newSelected.concat(selected, username);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -121,12 +133,11 @@ export default function UserPage() {
                 numSelected={selected.length}
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
-                headLabel={[
-                  { id: 'name', label: 'Name' },
-                  { id: 'company', label: 'Company' },
-                  { id: 'role', label: 'Role' },
-                  { id: 'isVerified', label: 'Verified', align: 'center' },
-                  { id: 'status', label: 'Status' },
+                headLabel={[                  
+                  { id: 'username', label: 'Username' },
+                  { id: 'email', label: 'Email' },
+                  { id: 'institution', label: 'Institution' },
+                  { id: 'created_by', label: 'created_by', align: 'center' },
                   { id: '' },
                 ]}
               />
@@ -136,14 +147,12 @@ export default function UserPage() {
                   .map((row) => (
                     <UserTableRow
                       key={row.id}
-                      name={row.name}
-                      role={row.role}
-                      status={row.status}
-                      company={row.company}
-                      avatarUrl={row.avatarUrl}
-                      isVerified={row.isVerified}
-                      selected={selected.indexOf(row.name) !== -1}
-                      handleClick={(event) => handleClick(event, row.name)}
+                      username={row.username}
+                      email={row.email}
+                      institution={row.institution?.institution_name}
+                      created_by={row.created_by?.username}
+                      selected={selected.indexOf(row.username) !== -1}
+                      handleClick={(event) => handleClick(event, row.username)}
                     />
                   ))}
 

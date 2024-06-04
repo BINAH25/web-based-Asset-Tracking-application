@@ -29,21 +29,15 @@ export const resourceApiSlice = createApi({
             }),
 
             
-
-            
-
-            putUsers: builder.mutation({
-                query(body) {
-                    return {
-                        url: `/users/`,
-                        method: 'POST',
-                        body,
-                    }
+            // users
+            getUsers: builder.query({
+                query() {
+                    return `/api/users/`;
                 },
             }),
 
             deleteUsers: builder.mutation({
-                query(body) {
+                query() {
                     return {
                         url: `/users/`,
                         method: 'DELETE',
@@ -51,8 +45,6 @@ export const resourceApiSlice = createApi({
                     }
                 },
             }),
-
-            
 
             // institutions
             putInstitution: builder.mutation({
@@ -68,6 +60,12 @@ export const resourceApiSlice = createApi({
             getAllInstitutions: builder.query({
                 query() {
                     return `/api/institutions/`;
+                },
+            }),
+
+            getAllNewInstitutions: builder.query({
+                query() {
+                    return `/api/get/all/new/institutions/`;
                 },
             }),
             
@@ -95,6 +93,7 @@ export const {
 
     // Institutions
     useLazyGetAllInstitutionsQuery,
+    useLazyGetAllNewInstitutionsQuery,
     usePutInstitutionMutation,
 
     
