@@ -11,10 +11,10 @@ urlpatterns = [
     path("add/product/", views.AddProductAPI.as_view()),  
     path("products/", views.ProductsAPI.as_view()),  
     path("get/available/products/", views.GetAvailableProductsAPI.as_view()),  
-    path("delete/product/", views.DeleteProductAPI.as_view()), 
+    # path("delete/product/", views.DeleteProductAPI.as_view()), 
     #asset 
     path("add/asset/", views.AddAssetAPI.as_view()),  
     path("get/all-assets/", views.GetAllAsssetsAPI.as_view()),  
-    path("delete/asset/", views.DeleteAssetAPI.as_view()),  
+    # path("delete/asset/", views.DeleteAssetAPI.as_view()),  
   
 ]
