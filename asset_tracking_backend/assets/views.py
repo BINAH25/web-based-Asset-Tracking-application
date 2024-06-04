@@ -102,7 +102,7 @@ class AddProductAPI(generics.GenericAPIView):
             )
             
   
-class GetAllProductsAPI(generics.GenericAPIView):
+class GetAvailableProductsAPI(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated, APILevelPermissionCheck]
     required_permissions = [ "setup.view_product"]
 
@@ -111,39 +111,46 @@ class GetAllProductsAPI(generics.GenericAPIView):
         products = Product.objects.filter(availability="Available").all().order_by('-created_at')
         serializers = self.serializer_class(products,many=True)
         return Response(
-            {"status": "success", "detail": serializers.data},
+            {"status": "success", "success_message": serializers.data},
             status=200
         )          
         
         
-class DeleteProductAPI(generics.GenericAPIView):
-    permission_classes = [permissions.IsAuthenticated,APILevelPermissionCheck]
-    required_permissions = [ "setup.delete_product"]
+class ProductsAPI(SimpleCrudMixin):
+    permission_classes = [permissions.IsAuthenticated, APILevelPermissionCheck]
+    required_permissions = [ "setup.view_product", "setup.delete_product"]
+
+    serializer_class = GettAllProductSerializer
+    model_class = Product
+        
+# class DeleteProductAPI(generics.GenericAPIView):
+#     permission_classes = [permissions.IsAuthenticated,APILevelPermissionCheck]
+#     required_permissions = [ "setup.delete_product"]
     
-    serializer_class = DeleteProductSerializer
-    def delete(self, request, *args, **kwargs):
-        serializers = self.serializer_class(data=request.data)
-        if serializers.is_valid():
-            id = serializers.data['product_id']
-            try:
-                product = Product.objects.get(id=id)
-                product.delete()
-                return Response(
-                    {
-                        "status": "success",
-                        "detail": "Product Deleted Successfully",
-                    },
-                    status=status.HTTP_200_OK,
-                )
-            except Product.DoesNotExist:
-                return Response(
-                    {"status": "error", "detail":"Product Not Found"},
-                    status=404
-                )
-        return Response(
-            {"status": "failure", "detail": serializers.errors},
-                status=status.HTTP_400_BAD_REQUEST,
-        )
+#     serializer_class = DeleteProductSerializer
+#     def delete(self, request, *args, **kwargs):
+#         serializers = self.serializer_class(data=request.data)
+#         if serializers.is_valid():
+#             id = serializers.data['product_id']
+#             try:
+#                 product = Product.objects.get(id=id)
+#                 product.delete()
+#                 return Response(
+#                     {
+#                         "status": "success",
+#                         "detail": "Product Deleted Successfully",
+#                     },
+#                     status=status.HTTP_200_OK,
+#                 )
+#             except Product.DoesNotExist:
+#                 return Response(
+#                     {"status": "error", "detail":"Product Not Found"},
+#                     status=404
+#                 )
+#         return Response(
+#             {"status": "failure", "detail": serializers.errors},
+#                 status=status.HTTP_400_BAD_REQUEST,
+#         )
         
 class AddAssetAPI(generics.GenericAPIView):
     """ check for require permission for adding a asset """
