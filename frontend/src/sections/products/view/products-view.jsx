@@ -12,7 +12,9 @@ import TablePagination from '@mui/material/TablePagination';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
-import { useLazyGetAllProductsQuery,usePutTagMutation } from '../../../features/resources/resources-api-slice';
+import { useLazyGetAllProductsQuery,
+  usePutProductMutation,
+  useLazyGetAllTagsQuery } from '../../../features/resources/resources-api-slice';
 import { useToast } from '@chakra-ui/react'
 import Iconify from '../../../components/iconify';
 import Scrollbar from '../../../components/scrollbar';
@@ -23,7 +25,11 @@ import UserTableHead from '../../user/user-table-head';
 import ProductTableToolbar from '../product-table-toolbar';
 import ProductTableRow from '../product-table-row';
 import { emptyRows, applyFilter, getComparator } from '../utils';
-
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import { fDate } from '../../../utils/format-time'
 // ----------------------------------------------------------------------
 const style = {
     position: 'absolute',
@@ -45,23 +51,38 @@ export default function TagPage() {
     const [filterName, setFilterName] = useState('');
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [open, setOpen] = useState(false);
-    const [tagID, setTagID] = useState('');
-    const [tagName, setTagName] = useState('');
+    const [serialNumber, setSerialNumber] = useState('');
+    const [productName, setProductName] = useState('');
+    const [getTags, { data: res = [],error: errorGettingTags }] = useLazyGetAllTagsQuery()
+    const [tags, setTags] = useState([])
+    const [tag, setTag] = useState('');
+
     const [getProducts, { data: response = [],error: errorGettingProducts }] = useLazyGetAllProductsQuery()
-    const [addTag,  { isLoading, error }] = usePutTagMutation()
+    const [addProduct,  { isLoading, error }] = usePutProductMutation()
     const [products, setProducts] = useState([])
 
 
+    useEffect(() => {
+      getProducts();
+  }, [getProducts]);
+
   useEffect(() => {
-    getProducts();
-}, [getProducts]);
+      if (response && Array.isArray(response.success_message)) {
+        setProducts(response.success_message);
+      }
+  }, [response]);
 
 
-useEffect(() => {
-    if (response && Array.isArray(response.success_message)) {
-      setProducts(response.success_message);
+  useEffect(() => {
+    getTags();
+  }, [getTags]);
+
+  useEffect(() => {
+    if (res && Array.isArray(res.success_message)) {
+        setTags(res.success_message);
     }
-}, [response]);
+  }, [res]);
+
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -124,9 +145,9 @@ useEffect(() => {
   const handleClose = () => setOpen(false);
   
 
-  const handleAddTag = async (event) => {
+  const handleAddProdduct = async (event) => {
     event.preventDefault()
-    if (!tagID || !tagName) {
+    if (!tag || !serialNumber || !productName) {
       toast({
         position: 'top-center',
         title: 'Missing Fields',
@@ -138,12 +159,13 @@ useEffect(() => {
       return; 
     }
     const body = { 
-        tag_id: tagID, 
-        tag_name: tagName,
+      tag: tag, 
+      serial_number: serialNumber,
+      product_name:productName
     }
 
     try {
-        const response = await addTag(body).unwrap()
+        const response = await addProduct(body).unwrap()
 
         if (response['error_message'] != null) {
           toast({
@@ -205,21 +227,42 @@ useEffect(() => {
     }
 }, [error, toast])
 
+const handleTagChange = (event) => {
+  setTag(event.target.value);
+};
   const renderForm = (
     <>
       <Stack spacing={3} sx={{ my: 2 }}>
+        <FormControl fullWidth required>
+          <InputLabel id="tag-label"> Select Tag </InputLabel>
+          <Select
+            labelId="Tag-label"
+            id="Tag"
+            label="Tag"
+            value={tag}
+            onChange={handleTagChange}
+
+          >
+           {tags.map((tag) => (
+          <MenuItem key={tag.id} value={tag.id}>
+            {`${tag.tag_name} (${tag.tag_id})`}
+          </MenuItem>
+        ))}
+          </Select>
+        </FormControl>
+
         <TextField 
-        name="Tag ID" 
-        label="Tag ID"
-        onChange={(e) => setTagID(e.target.value)}
+        name="serial Number" 
+        label="Serial Number"
+        onChange={(e) => setSerialNumber(e.target.value)}
         required />
 
         <TextField
-        name="Tag Name"
-        label="Tag Name"
-        onChange={(e) => setTagName(e.target.value)}
+        name="product_name"
+        label="Product Name"
+        onChange={(e) => setProductName(e.target.value)}
         required />
-        
+
       </Stack>
 
       <Button 
@@ -228,7 +271,7 @@ useEffect(() => {
       variant="contained" 
       color="inherit"
       disabled={isLoading}
-      onClick={handleAddTag}
+      onClick={handleAddProdduct}
       >
         {isLoading && <CircularProgress size={30}/>}
         Add Product
@@ -301,7 +344,7 @@ useEffect(() => {
                       serial_number={row.serial_number}
                       product_name={row.product_name}
                       availability={row.availability}
-                      procurement_date={row.procurement_date}
+                      procurement_date={fDate(row.procurement_date)}
                       created_by={row.created_by?.username}
                       selected={selected.indexOf(row.serial_number) !== -1}
                       handleClick={(event) => handleClick(event, row.serial_number)}

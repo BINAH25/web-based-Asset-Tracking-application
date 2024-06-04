@@ -94,7 +94,17 @@ export const resourceApiSlice = createApi({
                     return `/api/assets/tags/`;
                 },
             }),
+
             // products
+            putProduct: builder.mutation({
+                query(body) {
+                    return {
+                        url: `/api/assets/add/product/`,
+                        method: 'POST',
+                        body,
+                    }
+                },
+            }),
             getAllProducts: builder.query({
                 query() {
                     return `/api/assets/products/`;
@@ -130,6 +140,7 @@ export const {
     usePutTagMutation,
     // products
     useLazyGetAllProductsQuery,
+    usePutProductMutation,
 
    
     

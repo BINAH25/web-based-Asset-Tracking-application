@@ -77,30 +77,27 @@ class TagsAPI(SimpleCrudMixin):
 #         )
             
             
-class AddProductAPI(generics.GenericAPIView):
+class AddProductAPI(SimpleCrudMixin):
     """ check for require permission for adding a product """
     permission_classes = [permissions.IsAuthenticated,APILevelPermissionCheck]
     required_permissions = [ "setup.add_product"]
 
-    serializer_class = AddProductSerializer
+    serializer_class = GettAllProductSerializer
+    form_class = ProductForm
     def post(self, request,*args, **kwargs):
-        """ for adding  product"""
-        serializers = self.serializer_class(data=request.data)
-        if serializers.is_valid():
-            product = serializers.save(created_by=request.user) 
-            return Response(
-                    {
-                        "status": "success",
-                        "detail": "product added Successfully",
-                    },
+        form = self.form_class(request.data)
+        if form.is_valid():
+            product = form.save()
+            product.created_by = request.user
+            product.save()
+            return Response(self.serializer_class(form.instance).data,
                     status=status.HTTP_201_CREATED,
                 )
         else:
             return Response(
-                {"status": "failure", "detail": serializers.errors},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"error_message": get_errors_from_form(form)},
+                status=200,
             )
-            
   
 class GetAvailableProductsAPI(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated, APILevelPermissionCheck]

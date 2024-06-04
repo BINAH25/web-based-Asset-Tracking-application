@@ -5,10 +5,7 @@ from users.serializers import *
 User = get_user_model()
 
 
-class AddTagSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Tag
-        fields = ['tag_id','tag_name']
+
         
 class GettAllTagSerializer(serializers.ModelSerializer):
     created_by = UserSerializer()
@@ -19,13 +16,7 @@ class GettAllTagSerializer(serializers.ModelSerializer):
 class DeleteTagSerializer(serializers.Serializer):
     tag_id = serializers.CharField(max_length=254)
 
-
-class AddProductSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Product
-        fields = ['tag','serial_number','product_name']
-        
-        
+          
         
 class GettAllProductSerializer(serializers.ModelSerializer):
     created_by = UserSerializer()
