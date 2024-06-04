@@ -9,11 +9,22 @@ import TableBody from '@mui/material/TableBody';
 import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
-import { useLazyGetUsersQuery } from '../../../features/resources/resources-api-slice';
-
+import { useLazyGetUsersQuery,
+  useLazyGetAllNewInstitutionsQuery, 
+  useRegisterUserMutation } from '../../../features/resources/resources-api-slice';
+import Modal from '@mui/material/Modal';
+import TextField from '@mui/material/TextField';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 import Iconify from '../../../components/iconify';
 import Scrollbar from '../../../components/scrollbar';
-
+import CircularProgress from '@mui/material/CircularProgress';
+import { useToast } from '@chakra-ui/react'
+import Box from '@mui/material/Box';
+import InputAdornment from '@mui/material/InputAdornment';
+import IconButton from '@mui/material/IconButton';
 import TableNoData from '../table-no-data';
 import UserTableRow from '../user-table-row';
 import UserTableHead from '../user-table-head';
@@ -22,32 +33,57 @@ import UserTableToolbar from '../user-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 
 // ----------------------------------------------------------------------
-
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  boxShadow: 24,
+  p: 4,
+};
 export default function UserPage() {
+  const toast = useToast()
+
   const [page, setPage] = useState(0);
-
+  const [open, setOpen] = useState(false);
   const [order, setOrder] = useState('asc');
-
   const [selected, setSelected] = useState([]);
-
   const [orderBy, setOrderBy] = useState('name');
-
   const [filterName, setFilterName] = useState('');
-
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [getusers, { data: response = [] }] = useLazyGetUsersQuery()
-  const [users, SetUsers] = useState([])
+  const [getInstitutions, { data: res = [] }] = useLazyGetAllNewInstitutionsQuery()
+  const [showPassword, setShowPassword] = useState(false);
+  const [password, setPassword] = useState('')
+  const [institution, setInstitution] = useState('');
+  const [institutions, setInstitutions] = useState([]);
+  const [addUser,  { isLoading, error }] = useRegisterUserMutation()
 
-  console.log(users)
+  const [users, SetUsers] = useState([])
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
   useEffect(() => {
     getusers();
 }, [getusers]);
+
+  useEffect(() => {
+    getInstitutions();
+}, [getInstitutions]);
 
 useEffect(() => {
   if (response && Array.isArray(response.success_message)) {
     SetUsers(response.success_message);
   }
 }, [response]);
+
+useEffect(() => {
+  if (res && Array.isArray(res.success_message)) {
+    setInstitutions(res.success_message);
+  }
+}, [res]);
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -105,15 +141,161 @@ useEffect(() => {
   });
 
   const notFound = !dataFiltered.length && !!filterName;
+  const handleInstitutionChange = (event) => {
+    setInstitution(event.target.value);
+  };
+
+  const handleAddUser = async (event) => {
+    event.preventDefault()
+    if (!institution || !password) {
+      toast({
+        position: 'top-center',
+        title: 'Missing Fields',
+        description: 'All fields are required',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+      return; // Stop the function from proceeding
+    }
+    const body = { 
+        institution: institution, 
+        password: password
+    }
+
+    try {
+        const response = await addUser(body).unwrap()
+
+        if (response['error_message'] != null) {
+          toast({
+              position: 'top-center',
+              title: `An error occurred`,
+              description: response["error_message"],
+              status: 'error',
+              duration: 5000,
+              isClosable: true,
+          })
+      } else {
+        toast({
+          position: 'top-center',
+          title: 'OTP Sent',
+          description: "User added successfully",
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+      })
+        SetUsers((prevUsers) => [response, ...prevUsers]);
+        // Remove the used institution from the list
+        setInstitutions((prevInstitutions) => 
+          prevInstitutions.filter(inst => inst.id !== institution)
+        );
+        handleClose()
+      }
+      } catch (err) {
+        toast({
+          position: 'top-center',
+          title: `An error occurred`,
+          description: err.originalStatus,
+          status: 'error',
+          duration: 2000,
+          isClosable: true,
+      })
+      }
+
+  }
+
+  useEffect(() => {
+    if (error) {
+        toast({
+            position: 'top-center',
+            title: `An error occurred: ${error.originalStatus}`,
+            description: error.status,
+            status: 'error',
+            duration: 2000,
+            isClosable: true,
+        })
+    }
+}, [error, toast])
+
+  const renderForm = (
+    <>
+      <Stack spacing={3} sx={{ my: 2 }}>
+      
+        <FormControl fullWidth required>
+          <InputLabel id="location-label"> Select Institution </InputLabel>
+          <Select
+            labelId="location-label"
+            id="location"
+            label="Location"
+            value={institution}
+            onChange={handleInstitutionChange}
+
+          >
+           {institutions.map((institution) => (
+          <MenuItem key={institution.id} value={institution.id}>
+            {`${institution.institution_name} (${institution.username})`}
+          </MenuItem>
+        ))}
+          </Select>
+        </FormControl>
+
+        <TextField
+          name="password"
+          onChange={(e) => setPassword(e.target.value)}
+          label="Password"
+          required
+          type={showPassword ? 'text' : 'password'}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                  <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Stack>
+
+      <Button 
+      fullWidth size="large" 
+      type="submit" 
+      variant="contained" 
+      color="inherit"
+      disabled={isLoading}
+      onClick={handleAddUser}
+      >
+        {isLoading && <CircularProgress size={30}/>}
+        Add User
+      </Button>
+    </>
+  );
+
 
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Users</Typography>
 
-        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}>
+        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleOpen}>
           New User
         </Button>
+        <Modal
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}
+          > 
+            <Stack alignItems="center">
+            <Typography variant="h4" sx={{ my: 1 }}>
+                Add User Form
+            </Typography>
+            </Stack>
+            {renderForm}
+          </Box>
+        </Modal>
       </Stack>
 
       <Card>

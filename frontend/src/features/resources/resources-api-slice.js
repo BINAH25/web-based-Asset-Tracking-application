@@ -30,6 +30,16 @@ export const resourceApiSlice = createApi({
 
             
             // users
+            registerUser: builder.mutation({
+                query(body) {
+                    return {
+                        url: `/api/auth/register/`,
+                        method: 'POST',
+                        body,
+                    }
+                },
+            }),
+
             getUsers: builder.query({
                 query() {
                     return `/api/users/`;
@@ -87,7 +97,7 @@ export const {
 
     // Users
     useLazyGetUsersQuery,
-    usePutUsersMutation,
+    useRegisterUserMutation,
     useDeleteUsersMutation,
     
 

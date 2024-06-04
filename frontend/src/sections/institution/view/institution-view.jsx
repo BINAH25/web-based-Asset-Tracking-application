@@ -159,7 +159,6 @@ useEffect(() => {
 
     try {
         const response = await addInstitutions(body).unwrap()
-        console.log(response)
 
         if (response['error_message'] != null) {
           toast({
@@ -253,7 +252,7 @@ useEffect(() => {
       onClick={handleAddInstitution}
       >
         {isLoading && <CircularProgress size={30}/>}
-        Submit
+        Add Institution
       </Button>
     </>
   );

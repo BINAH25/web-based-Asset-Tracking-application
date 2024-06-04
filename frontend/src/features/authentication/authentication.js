@@ -69,15 +69,7 @@ export const apiSlice = createApi({
                     }
                 },
             }),
-            registerUser: builder.mutation({
-                query(body) {
-                    return {
-                        url: `/api/auth/register/`,
-                        method: 'POST',
-                        body,
-                    }
-                },
-            }),
+            
             logOutUser: builder.mutation({
                 query() {
                     return {
@@ -90,4 +82,4 @@ export const apiSlice = createApi({
     },
 });
 
-export const { useLoginUserMutation,useVerifyUserMutation, useRegisterUserMutation, useLogOutUserMutation } = apiSlice;
+export const { useLoginUserMutation,useVerifyUserMutation, useLogOutUserMutation } = apiSlice;

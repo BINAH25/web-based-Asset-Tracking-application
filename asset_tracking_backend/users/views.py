@@ -146,19 +146,26 @@ class AddUserAPI(generics.GenericAPIView):
         if serializers.is_valid():
             institution = serializers.validated_data['institution']
             password = serializers.validated_data['password']
-            try:    
-                user = User.objects.create_user(username=institution.usernane, email=institution.email, password=password, institution=institution,created_by=request.user)
-                user.save()
-                institution = institution.status = "Completed"
-                institution.save()
+            
+            if len(password) < 4:
                 return Response(
-                    serializers.data,
+                    {"status": "error", "error_message":"Password Must be At least four characters"},
+                    status=200
+                )
+            try:    
+                user = User.objects.create_user(username=institution.username, email=institution.email, password=password, institution=institution,created_by=request.user)
+                institution.status = "Completed"
+                institution.save()
+                user.save()
+                serializer = UserLoginSerializer(user)
+                return Response(
+                    serializer.data,
                     status=status.HTTP_201_CREATED,
                 )
             except Institution.DoesNotExist:
                 return Response(
                     {"status": "error", "error_message":"institution Not Found"},
-                    status=404
+                    status=200
                 )
         else:
             return Response(
