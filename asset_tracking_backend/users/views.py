@@ -189,7 +189,7 @@ class GetAllNewInstitutionAPI(generics.GenericAPIView):
                    
 class UsersAPI(SimpleCrudMixin):
     permission_classes = [permissions.IsAuthenticated, APILevelPermissionCheck]
-    required_permissions = [ "setup.view_user"]
+    required_permissions = [ "setup.view_user", "setup.delete_user"]
 
     serializer_class = UserLoginSerializer
     model_class = User
@@ -224,31 +224,3 @@ class DeleteInstitutionAPI(generics.GenericAPIView):
                 status=status.HTTP_400_BAD_REQUEST,
         )
         
-class DeleteUserAPI(generics.GenericAPIView):
-    permission_classes = [permissions.IsAuthenticated,APILevelPermissionCheck]
-    required_permissions = [ "setup.delete_user"]
-    
-    serializer_class = DeleteUserSerializer
-    def delete(self, request, *args, **kwargs):
-        serializers = self.serializer_class(data=request.data)
-        if serializers.is_valid():
-            id = serializers.data['user_id']
-            try:
-                user = User.objects.get(id=id)
-                user.delete()
-                return Response(
-                    {
-                        "status": "success",
-                        "detail": "User Deleted Successfully",
-                    },
-                    status=status.HTTP_200_OK,
-                )
-            except User.DoesNotExist:
-                return Response(
-                    {"status": "error", "detail":"User Not Found"},
-                    status=404
-                )
-        return Response(
-            {"status": "failure", "detail": serializers.errors},
-                status=status.HTTP_400_BAD_REQUEST,
-        )
