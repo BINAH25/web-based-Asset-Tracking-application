@@ -12,7 +12,7 @@ import TablePagination from '@mui/material/TablePagination';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
-import { useLazyGetAllTagsQuery,usePutTagMutation } from '../../../features/resources/resources-api-slice';
+import { useLazyGetAllProductsQuery,usePutTagMutation } from '../../../features/resources/resources-api-slice';
 import { useToast } from '@chakra-ui/react'
 import Iconify from '../../../components/iconify';
 import Scrollbar from '../../../components/scrollbar';
@@ -47,19 +47,19 @@ export default function TagPage() {
     const [open, setOpen] = useState(false);
     const [tagID, setTagID] = useState('');
     const [tagName, setTagName] = useState('');
-    const [getTags, { data: response = [],error: errorGettingTags }] = useLazyGetAllTagsQuery()
+    const [getProducts, { data: response = [],error: errorGettingProducts }] = useLazyGetAllProductsQuery()
     const [addTag,  { isLoading, error }] = usePutTagMutation()
-    const [tags, setTags] = useState([])
+    const [products, setProducts] = useState([])
 
 
   useEffect(() => {
-    getTags();
-}, [getTags]);
+    getProducts();
+}, [getProducts]);
 
 
 useEffect(() => {
     if (response && Array.isArray(response.success_message)) {
-        setTags(response.success_message);
+      setProducts(response.success_message);
     }
 }, [response]);
 
@@ -73,18 +73,18 @@ useEffect(() => {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = tags.map((n) => n.usernane);
+      const newSelecteds = products.map((n) => n.serial_number);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  const handleClick = (event, usernane) => {
-    const selectedIndex = selected.indexOf(usernane);
+  const handleClick = (event, serial_number) => {
+    const selectedIndex = selected.indexOf(serial_number);
     let newSelected = [];
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, usernane);
+      newSelected = newSelected.concat(selected, serial_number);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -113,7 +113,7 @@ useEffect(() => {
   };
 
   const dataFiltered = applyFilter({
-    inputData: tags,
+    inputData: products,
     comparator: getComparator(order, orderBy),
     filterName,
   });
@@ -158,12 +158,12 @@ useEffect(() => {
         toast({
           position: 'top-center',
           title: 'OTP Sent',
-          description: "Tag added successfully",
+          description: "Product added successfully",
           status: 'success',
           duration: 5000,
           isClosable: true,
       })
-        setTags((prevTags) => [response, ...prevTags]);
+        setProducts((prevproducts) => [response, ...prevproducts]);
         handleClose()
       }
       } catch (err) {
@@ -180,17 +180,17 @@ useEffect(() => {
   }
 
   useEffect(() => {
-    if (errorGettingTags) {
+    if (errorGettingProducts) {
         toast({
             position: 'top-center',
-            title: `An error occurred: ${errorGettingTags.originalStatus}`,
-            description: errorGettingTags.status,
+            title: `An error occurred: ${errorGettingProducts.originalStatus}`,
+            description: errorGettingProducts.status,
             status: 'error',
             duration: 2000,
             isClosable: true,
         })
     }
-}, [errorGettingTags, toast])
+}, [errorGettingProducts, toast])
 
   useEffect(() => {
     if (error) {
@@ -231,7 +231,7 @@ useEffect(() => {
       onClick={handleAddTag}
       >
         {isLoading && <CircularProgress size={30}/>}
-        Add Tag
+        Add Product
       </Button>
     </>
   );
@@ -239,10 +239,10 @@ useEffect(() => {
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Tags</Typography>
+        <Typography variant="h4">Products</Typography>
 
         <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleOpen}>
-          New Tag
+          New Product
         </Button>
         <Modal
           open={open}
@@ -254,7 +254,7 @@ useEffect(() => {
           > 
             <Stack alignItems="center">
             <Typography variant="h4" sx={{ my: 1 }}>
-                Add Tag Form
+                Add Product Form
             </Typography>
             </Stack>
             {renderForm}
@@ -275,13 +275,17 @@ useEffect(() => {
               <UserTableHead
                 order={order}
                 orderBy={orderBy}
-                rowCount={tags.length}
+                rowCount={products.length}
                 numSelected={selected.length}
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
-                  { id: 'tag_id', label: 'Tag ID' },
+                  { id: 'tag', label: 'Tag ID' },
                   { id: 'tag_name', label: 'Tag Name' },
+                  { id: 'serial_number', label: 'Serial Number' },
+                  { id: 'product_name', label: 'Product Name ' },
+                  { id: 'availability', label: 'Availability ' },
+                  { id: 'procurement_date', label: 'Procurement Date ' },
                   { id: 'created_by', label: 'Created by' },
                   { id: '' },
                 ]}
@@ -292,17 +296,21 @@ useEffect(() => {
                   .map((row) => (
                     <ProductTableRow
                       key={row.id}
-                      tag_id={row.tag_id}
-                      tag_name={row.tag_name}
-                      created_by={row.created_by.username}
-                      selected={selected.indexOf(row.usernane) !== -1}
-                      handleClick={(event) => handleClick(event, row.usernane)}
+                      tag={row.tag?.tag_id}
+                      tag_name={row.tag?.tag_name}
+                      serial_number={row.serial_number}
+                      product_name={row.product_name}
+                      availability={row.availability}
+                      procurement_date={row.procurement_date}
+                      created_by={row.created_by?.username}
+                      selected={selected.indexOf(row.serial_number) !== -1}
+                      handleClick={(event) => handleClick(event, row.serial_number)}
                     />
                   ))}
 
                 <TableEmptyRows
                   height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, tags.length)}
+                  emptyRows={emptyRows(page, rowsPerPage, products.length)}
                 />
 
                 {notFound && <TableNoData query={filterName} />}
@@ -314,7 +322,7 @@ useEffect(() => {
         <TablePagination
           page={page}
           component="div"
-          count={tags.length}
+          count={products.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}

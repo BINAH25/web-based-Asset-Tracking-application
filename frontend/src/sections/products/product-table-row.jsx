@@ -18,9 +18,11 @@ export default function ProductTableRow({
   selected,
   tag,
   serial_number,
+  tag_name,
   product_name,
   availability,
   created_by,
+  procurement_date,
   handleClick,
 }) {
   const [open, setOpen] = useState(null);
@@ -48,9 +50,11 @@ export default function ProductTableRow({
           </Stack>
         </TableCell>
 
+        <TableCell>{tag_name}</TableCell>
         <TableCell>{serial_number}</TableCell>
         <TableCell>{product_name}</TableCell>
         <TableCell>{availability}</TableCell>
+        <TableCell>{procurement_date}</TableCell>
         <TableCell>{created_by}</TableCell>
 
         <TableCell align="right">
@@ -87,9 +91,11 @@ export default function ProductTableRow({
 ProductTableRow.propTypes = {
     tag: PropTypes.any,
     handleClick: PropTypes.func,
+    tag_name: PropTypes.any,
     serial_number: PropTypes.any,
     product_name:PropTypes.any,
     availability:PropTypes.any,
+    procurement_date:PropTypes.any,
     selected: PropTypes.any,
     created_by: PropTypes.any,
 };
