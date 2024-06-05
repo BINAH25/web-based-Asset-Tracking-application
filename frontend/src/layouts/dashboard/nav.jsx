@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import Box from '@mui/material/Box';
@@ -9,6 +9,7 @@ import Avatar from '@mui/material/Avatar';
 import { alpha } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import ListItemButton from '@mui/material/ListItemButton';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { usePathname } from '../../routes/hooks';
 import { RouterLink } from '../../routes/components';
@@ -27,7 +28,8 @@ import navConfig from './config-navigation';
 
 export default function Nav({ openNav, onCloseNav }) {
   const pathname = usePathname();
-
+  const loggedInUser = useSelector((state) => state.authentication.user);
+  const [user, setUser] = useState(loggedInUser)
   const upLg = useResponsive('up', 'lg');
 
   useEffect(() => {
@@ -53,11 +55,7 @@ export default function Nav({ openNav, onCloseNav }) {
       <Avatar src={account.photoURL} alt="photoURL" />
 
       <Box sx={{ ml: 2 }}>
-        <Typography variant="subtitle2">{account.displayName}</Typography>
-
-        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          {account.role}
-        </Typography>
+        <Typography variant="subtitle2">{user?.username}</Typography>
       </Box>
     </Box>
   );
