@@ -13,8 +13,9 @@ import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import { useLazyGetAllAssetsQuery,
-  usePutProductMutation,
-  useLazyGetAllTagsQuery } from '../../../features/resources/resources-api-slice';
+    usePutAssetMutation,
+    useLazyGetAllAvailableProductsQuery,
+    useLazyGetUsersQuery } from '../../../features/resources/resources-api-slice';
 import { useToast } from '@chakra-ui/react'
 import Iconify from '../../../components/iconify';
 import Scrollbar from '../../../components/scrollbar';
@@ -63,15 +64,16 @@ export default function AssetPage() {
     const [filterName, setFilterName] = useState('');
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [open, setOpen] = useState(false);
-    const [serialNumber, setSerialNumber] = useState('');
-    const [productName, setProductName] = useState('');
-    const [getTags, { data: res = [],error: errorGettingTags }] = useLazyGetAllTagsQuery()
-    const [tags, setTags] = useState([])
-    const [tag, setTag] = useState('');
+    const [getAvailableProducts, { data: res = [],error: errorGettingTags }] = useLazyGetAllAvailableProductsQuery()
+    const [availableProducts, setAvailableProducts] = useState([])
+    const [product, setProduct] = useState('');
+    const [getusers, { data: user_response = [] }] = useLazyGetUsersQuery()
+    const [users, SetUsers] = useState([])
+    const [user, SetUser] = useState('')
 
-    const [getAssets, { data: response = [],error: errorGettingProducts }] = useLazyGetAllAssetsQuery()
-    const [addProduct,  { isLoading, error }] = usePutProductMutation()
-    const [products, setProducts] = useState([])
+    const [getAssets, { data: response = [],error: errorGettingAssets }] = useLazyGetAllAssetsQuery()
+    const [addAsset,  { isLoading, error }] = usePutAssetMutation()
+    const [assets, setAssets] = useState([])
 
     const [editOpen, setEditOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
@@ -87,25 +89,36 @@ export default function AssetPage() {
     };
 
     useEffect(() => {
-      getAssets();
-  }, [getAssets]);
+        getAssets();
+    }, [getAssets]);
 
-  useEffect(() => {
-      if (response && Array.isArray(response.success_message)) {
-        setProducts(response.success_message);
-      }
-  }, [response]);
+    useEffect(() => {
+        if (response && Array.isArray(response.success_message)) {
+            setAssets(response.success_message);
+        }
+    }, [response]);
 
 
-  useEffect(() => {
-    getTags();
-  }, [getTags]);
+    useEffect(() => {
+        getAvailableProducts();
+    },  [getAvailableProducts]);
 
-  useEffect(() => {
-    if (res && Array.isArray(res.success_message)) {
-        setTags(res.success_message);
-    }
-  }, [res]);
+    useEffect(() => {
+        if (res && Array.isArray(res.success_message)) {
+            setAvailableProducts(res.success_message);
+        }
+    }, [res]);
+
+    useEffect(() => {
+        getusers();
+    }, [getusers]);
+
+    useEffect(() => {
+        if (user_response && Array.isArray(user_response.success_message)) {
+          SetUsers(user_response.success_message);
+        }
+    }, [user_response]);
+      
 
 
   const handleSort = (event, id) => {
@@ -118,7 +131,7 @@ export default function AssetPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = products.map((n) => n.serial_number);
+      const newSelecteds = assets.map((n) => n.serial_number);
       setSelected(newSelecteds);
       return;
     }
@@ -158,7 +171,7 @@ export default function AssetPage() {
   };
 
   const dataFiltered = applyFilter({
-    inputData: products,
+    inputData: assets,
     comparator: getComparator(order, orderBy),
     filterName,
   });
@@ -171,7 +184,7 @@ export default function AssetPage() {
 
   const handleAddProdduct = async (event) => {
     event.preventDefault()
-    if (!tag || !serialNumber || !productName) {
+    if (!product || !user ) {
       toast({
         position: 'top-center',
         title: 'Missing Fields',
@@ -183,13 +196,12 @@ export default function AssetPage() {
       return; 
     }
     const body = { 
-      tag: tag, 
-      serial_number: serialNumber,
-      product_name:productName
+        product: product,
+        owner: user
     }
 
     try {
-        const response = await addProduct(body).unwrap()
+        const response = await addAsset(body).unwrap()
 
         if (response['error_message'] != null) {
           toast({
@@ -204,12 +216,18 @@ export default function AssetPage() {
         toast({
           position: 'top-center',
           title: 'OTP Sent',
-          description: "Product added successfully",
+          description: "Asset Issued successfully",
           status: 'success',
           duration: 5000,
           isClosable: true,
       })
-        setProducts((prevproducts) => [response, ...prevproducts]);
+        setAssets((prevassets) => [response, ...prevassets]);
+        // Remove the used product from the list
+        setAvailableProducts((prevProducts) => 
+            prevProducts.filter(prod => prod.id !== product)
+          );
+        setUser('')
+        setProduct('')
         handleClose()
       }
       } catch (err) {
@@ -226,17 +244,17 @@ export default function AssetPage() {
   }
 
   useEffect(() => {
-    if (errorGettingProducts) {
+    if (errorGettingAssets) {
         toast({
             position: 'top-center',
-            title: `An error occurred: ${errorGettingProducts.originalStatus}`,
-            description: errorGettingProducts.status,
+            title: `An error occurred: ${errorGettingAssets.originalStatus}`,
+            description: errorGettingAssets.status,
             status: 'error',
             duration: 2000,
             isClosable: true,
         })
     }
-    }, [errorGettingProducts, toast])
+    }, [errorGettingAssets, toast])
 
   useEffect(() => {
     if (error) {
@@ -251,8 +269,12 @@ export default function AssetPage() {
     }
     }, [error, toast])
 
-    const handleTagChange = (event) => {
-    setTag(event.target.value);
+    const handleProductChange = (event) => {
+        setProduct(event.target.value);
+    };
+
+    const handleUserChange = (event) => {
+        SetUser(event.target.value);
     };
     const renderEditForm = (
         <Box sx={{ my: 2 }}>
@@ -333,18 +355,36 @@ export default function AssetPage() {
     <>
       <Stack spacing={3} sx={{ my: 2 }}>
         <FormControl fullWidth required>
-          <InputLabel id="tag-label"> Select Tag </InputLabel>
+          <InputLabel id="product-label"> Select Product </InputLabel>
           <Select
-            labelId="Tag-label"
-            id="Tag"
-            label="Tag"
-            value={tag}
-            onChange={handleTagChange}
+            labelId="product-label"
+            id="Product"
+            label="Product"
+            value={product}
+            onChange={handleProductChange}
 
           >
-           {tags.map((tag) => (
-          <MenuItem key={tag.id} value={tag.id}>
-            {`${tag.tag_name} (${tag.tag_id})`}
+           {availableProducts.map((product) => (
+          <MenuItem key={product.id} value={product.id}>
+            {`${product.product_name} (${product.serial_number})`}
+          </MenuItem>
+        ))}
+          </Select>
+        </FormControl>
+
+        <FormControl fullWidth required>
+          <InputLabel id="user-label"> Select User </InputLabel>
+          <Select
+            labelId="user-label"
+            id="user"
+            label="user"
+            value={user}
+            onChange={handleUserChange}
+
+          >
+           {users.map((user) => (
+          <MenuItem key={user.id} value={user.id}>
+            {`${user.institution?.institution_name} (${user.username})`}
           </MenuItem>
         ))}
           </Select>
@@ -362,7 +402,7 @@ export default function AssetPage() {
       onClick={handleAddProdduct}
       >
         {isLoading && <CircularProgress size={30}/>}
-        Add Asset
+        Submit
       </Button>
     </>
   );
@@ -373,7 +413,7 @@ export default function AssetPage() {
         <Typography variant="h4">Assets</Typography>
 
         <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleOpen}>
-          New Asset
+          Issue Asset
         </Button>
         <Modal
           open={open}
@@ -385,7 +425,7 @@ export default function AssetPage() {
           > 
             <Stack alignItems="center">
             <Typography variant="h4" sx={{ my: 1 }}>
-                Add Asset Form
+                Give Out Asset Form
             </Typography>
             </Stack>
             {renderForm}
@@ -406,7 +446,7 @@ export default function AssetPage() {
               <UserTableHead
                 order={order}
                 orderBy={orderBy}
-                rowCount={products.length}
+                rowCount={assets.length}
                 numSelected={selected.length}
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
@@ -440,7 +480,7 @@ export default function AssetPage() {
 
                 <TableEmptyRows
                   height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, products.length)}
+                  emptyRows={emptyRows(page, rowsPerPage, assets.length)}
                 />
 
                 {notFound && <TableNoData query={filterName} />}
@@ -452,7 +492,7 @@ export default function AssetPage() {
         <TablePagination
           page={page}
           component="div"
-          count={products.length}
+          count={assets.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}

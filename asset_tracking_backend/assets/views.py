@@ -163,17 +163,14 @@ class AddAssetAPI(generics.GenericAPIView):
             asset = serializers.save(created_by=request.user) 
             product.availability = "Unavailable"
             product.save()
-            return Response(
-                    {
-                        "status": "success",
-                        "detail": "asset added Successfully",
-                    },
+            serializer = GetAllAssetSerializer(asset)
+            return Response(serializer.data,
                     status=status.HTTP_201_CREATED,
                 )
         else:
             return Response(
-                {"status": "failure", "detail": serializers.errors},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"status": "failure", "error_message": serializers.errors},
+                status=200,
             )
             
             

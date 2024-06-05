@@ -110,8 +110,22 @@ export const resourceApiSlice = createApi({
                     return `/api/assets/products/`;
                 },
             }),
+            getAllAvailableProducts: builder.query({
+                query() {
+                    return `/api/assets/get/available/products/`;
+                },
+            }),
 
             // assets
+            putAsset: builder.mutation({
+                query(body) {
+                    return {
+                        url: `/api/assets/add/asset/`,
+                        method: 'POST',
+                        body,
+                    }
+                },
+            }),
             getAllAssets: builder.query({
                 query() {
                     return `/api/assets/get/all/assets/`;
@@ -148,8 +162,10 @@ export const {
     // products
     useLazyGetAllProductsQuery,
     usePutProductMutation,
+    useLazyGetAllAvailableProductsQuery,
     // assets
     useLazyGetAllAssetsQuery,
+    usePutAssetMutation,
    
     
 } = resourceApiSlice;

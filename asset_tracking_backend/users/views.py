@@ -125,8 +125,7 @@ class OTPVerifyAPI(generics.GenericAPIView):
 class InstitutionAPI(SimpleCrudMixin):
     """ check for require permission for adding a institution """
     permission_classes = [permissions.IsAuthenticated,APILevelPermissionCheck]
-    add_permissions = ["setup.add_institution"]
-    delete_permissions = ["setup.delete_institution"]
+    required_permissions = ["setup.add_institution", "setup.delete_institution"]
     model_class = Institution
     serializer_class = AddInstitutionSerializer
     form_class = InstitutionForm
