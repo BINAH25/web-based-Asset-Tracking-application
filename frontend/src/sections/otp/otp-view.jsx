@@ -75,7 +75,7 @@ export default function OtpView() {
         dispatch(setToken(setToken['token']));
         dispatch(setUserPermissions(response['user_permissions']))
         setUser(response['user'])
-      router.push('/dashboard');
+        router.push('/dashboard');
     }
     } catch (err) {
       toast({

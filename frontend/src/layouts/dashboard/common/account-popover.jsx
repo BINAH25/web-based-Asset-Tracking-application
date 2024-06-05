@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import { useDispatch, useSelector } from 'react-redux';
 import { useToast } from '@chakra-ui/react';
-
+import { useRouter } from '../../../routes/hooks';
 import { account } from '../../../_mock/account';
 import { logOutLocally } from '../../../features/authentication/authentication';
 import { useLogOutUserMutation } from '../../../features/resources/resources-api-slice';
@@ -20,6 +20,7 @@ import { useLogOutUserMutation } from '../../../features/resources/resources-api
 
 export default function AccountPopover() {
   const toast = useToast()
+  const router = useRouter();
   const [open, setOpen] = useState(null);
   const user = useSelector((state) => state.authentication.user);
   const dispatch = useDispatch()
@@ -28,34 +29,67 @@ export default function AccountPopover() {
     setOpen(event.currentTarget);
   };
   const refresh = localStorage.getItem('refresh')
-  console.log(refresh)
 
   const handleClose = () => {
     setOpen(null);
   };
 
   async function logoutUser() {
-    await logoutUserServerSide().unwrap()
-    dispatch(logOutLocally())
-
-
-   // Logout error
-   useEffect(() => {
-    if (Boolean(error) && !isLoading) {
-        toast.close("logout")
+    const body = { refresh: refresh}
+    console.log(body)
+    try {
+      const response = await logoutUserServerSide(body).unwrap()
+      if (response['error_message'] != null) {
         toast({
-            id: "logout",
             position: 'top-center',
             title: `An error occurred`,
-            description: `${error?.originalStatus}: ${error?.status}`,
+            description: response["error_message"],
             status: 'error',
-            duration: 2000,
+            duration: 5000,
             isClosable: true,
         })
+    } else {
+      toast({
+        position: 'top-center',
+        title: 'OTP Sent',
+        description: response['success_message'],
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+    })
+      dispatch(logOutLocally())
+      router.push('/');
     }
-}, [error, isLoading])
+    } catch (err) {
+      toast({
+        position: 'top-center',
+        title: `An error occurred`,
+        description: err.originalStatus,
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+    })
+  }
+    
 }
 
+
+  // Logout error
+  useEffect(() => {
+    if (Boolean(error) && !isLoading) {
+      toast.close("logout")
+      toast({
+        id: "logout",
+        position: 'top-center',
+        title: `An error occurred`,
+        description: `${error?.originalStatus}: ${error?.status}`,
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+       })
+   }
+  }, [error, isLoading])
+  
   return (
     <>
       <IconButton

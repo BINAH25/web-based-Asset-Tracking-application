@@ -223,3 +223,16 @@ class DeleteInstitutionAPI(generics.GenericAPIView):
                 status=status.HTTP_400_BAD_REQUEST,
         )
         
+class LogOutAPI(generics.GenericAPIView):
+    """Logout API view to blacklist refresh token"""
+
+    permission_classes = [permissions.IsAuthenticated]
+    def post(self, request,*args, **kwargs):
+        refresh_token = request.data["refresh"]
+        print(refresh_token)
+        try:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response({"status": "success","success_message": "Successfully logged out."}, status=200)
+        except Exception as e:
+            return Response({"status": "error","error_message": f"Error logging out. {e}"}, status=200)

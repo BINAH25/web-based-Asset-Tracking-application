@@ -197,7 +197,7 @@ export default function ProductPage() {
           duration: 2000,
           isClosable: true,
       })
-      }
+    }
 
   }
 

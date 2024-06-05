@@ -55,6 +55,15 @@ export const resourceApiSlice = createApi({
                     }
                 },
             }),
+            logOutUser: builder.mutation({
+                query(body) {
+                    return {
+                        url: `/api/auth/logout/`,
+                        method: 'POST',
+                        body,
+                    }
+                },
+            }),
 
             // institutions
             putInstitution: builder.mutation({
@@ -67,14 +76,6 @@ export const resourceApiSlice = createApi({
                 },
             }),
 
-            logOutUser: builder.mutation({
-                query() {
-                    return {
-                        url: `/api/auth/logout/`,
-                        method: 'POST',
-                    }
-                },
-            }),
             getAllInstitutions: builder.query({
                 query() {
                     return `/api/institutions/`;
