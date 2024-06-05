@@ -149,7 +149,7 @@ export const {
     useLazyGetAllProductsQuery,
     usePutProductMutation,
     // assets
-    useGetAllAssetsQuery,
+    useLazyGetAllAssetsQuery,
    
     
 } = resourceApiSlice;

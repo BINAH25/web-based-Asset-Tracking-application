@@ -12,7 +12,7 @@ import TablePagination from '@mui/material/TablePagination';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
-import { useLazyGetAllProductsQuery,
+import { useLazyGetAllAssetsQuery,
   usePutProductMutation,
   useLazyGetAllTagsQuery } from '../../../features/resources/resources-api-slice';
 import { useToast } from '@chakra-ui/react'
@@ -57,14 +57,14 @@ export default function AssetPage() {
     const [tags, setTags] = useState([])
     const [tag, setTag] = useState('');
 
-    const [getProducts, { data: response = [],error: errorGettingProducts }] = useLazyGetAllProductsQuery()
+    const [getAssets, { data: response = [],error: errorGettingProducts }] = useLazyGetAllAssetsQuery()
     const [addProduct,  { isLoading, error }] = usePutProductMutation()
     const [products, setProducts] = useState([])
 
-
+    console.log(products)
     useEffect(() => {
-      getProducts();
-  }, [getProducts]);
+      getAssets();
+  }, [getAssets]);
 
   useEffect(() => {
       if (response && Array.isArray(response.success_message)) {
@@ -251,17 +251,6 @@ const handleTagChange = (event) => {
           </Select>
         </FormControl>
 
-        <TextField 
-        name="serial Number" 
-        label="Serial Number"
-        onChange={(e) => setSerialNumber(e.target.value)}
-        required />
-
-        <TextField
-        name="product_name"
-        label="Product Name"
-        onChange={(e) => setProductName(e.target.value)}
-        required />
 
       </Stack>
 
@@ -274,7 +263,7 @@ const handleTagChange = (event) => {
       onClick={handleAddProdduct}
       >
         {isLoading && <CircularProgress size={30}/>}
-        Add Product
+        Add Asset
       </Button>
     </>
   );
@@ -282,10 +271,10 @@ const handleTagChange = (event) => {
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Products</Typography>
+        <Typography variant="h4">Assets</Typography>
 
         <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleOpen}>
-          New Product
+          New Asset
         </Button>
         <Modal
           open={open}
@@ -297,7 +286,7 @@ const handleTagChange = (event) => {
           > 
             <Stack alignItems="center">
             <Typography variant="h4" sx={{ my: 1 }}>
-                Add Product Form
+                Add Asset Form
             </Typography>
             </Stack>
             {renderForm}
@@ -323,12 +312,11 @@ const handleTagChange = (event) => {
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
-                  { id: 'tag', label: 'Tag ID' },
                   { id: 'tag_name', label: 'Tag Name' },
-                  { id: 'serial_number', label: 'Serial Number' },
                   { id: 'product_name', label: 'Product Name ' },
-                  { id: 'availability', label: 'Availability ' },
-                  { id: 'procurement_date', label: 'Procurement Date ' },
+                  { id: 'owner', label: 'owner ' },
+                  { id: 'status', label: 'Status  ' },
+                  { id: 'created_at', label: 'Creation Date ' },
                   { id: 'created_by', label: 'Created by' },
                   { id: '' },
                 ]}
@@ -339,12 +327,11 @@ const handleTagChange = (event) => {
                   .map((row) => (
                     <AssetTableRow
                       key={row.id}
-                      tag={row.tag?.tag_id}
-                      tag_name={row.tag?.tag_name}
-                      serial_number={row.serial_number}
-                      product_name={row.product_name}
-                      availability={row.availability}
-                      procurement_date={fDate(row.procurement_date)}
+                      tag_name={row.product?.tag?.tag_name}
+                      product_name={row.product?.product_name}
+                      owner={row.owner?.institution?.institution_name}
+                      status={row.status}
+                      created_at={fDate(row.created_at)}
                       created_by={row.created_by?.username}
                       selected={selected.indexOf(row.serial_number) !== -1}
                       handleClick={(event) => handleClick(event, row.serial_number)}

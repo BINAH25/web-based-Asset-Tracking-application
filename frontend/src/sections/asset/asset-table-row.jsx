@@ -16,13 +16,12 @@ import Iconify from '../../components/iconify';
 
 export default function AssetTableRow({
   selected,
-  tag,
-  serial_number,
   tag_name,
   product_name,
-  availability,
+  owner,
+  status,
+  created_at,
   created_by,
-  procurement_date,
   handleClick,
 }) {
   const [open, setOpen] = useState(null);
@@ -45,16 +44,15 @@ export default function AssetTableRow({
         <TableCell component="th" scope="row" padding="none">
           <Stack direction="row" alignItems="center" spacing={2}>
             <Typography variant="subtitle2" noWrap>
-              {tag}
+              {tag_name}
             </Typography>
           </Stack>
         </TableCell>
 
-        <TableCell>{tag_name}</TableCell>
-        <TableCell>{serial_number}</TableCell>
         <TableCell>{product_name}</TableCell>
-        <TableCell>{availability}</TableCell>
-        <TableCell>{procurement_date}</TableCell>
+        <TableCell>{owner}</TableCell>
+        <TableCell>{status}</TableCell>
+        <TableCell>{created_at}</TableCell>
         <TableCell>{created_by}</TableCell>
 
         <TableCell align="right">
@@ -89,13 +87,12 @@ export default function AssetTableRow({
 }
 
 AssetTableRow.propTypes = {
-    tag: PropTypes.any,
-    handleClick: PropTypes.func,
     tag_name: PropTypes.any,
-    serial_number: PropTypes.any,
-    product_name:PropTypes.any,
-    availability:PropTypes.any,
-    procurement_date:PropTypes.any,
+    handleClick: PropTypes.func,
+    product_name: PropTypes.any,
+    owner: PropTypes.any,
+    status:PropTypes.any,
+    created_at:PropTypes.any,
     selected: PropTypes.any,
     created_by: PropTypes.any,
 };
