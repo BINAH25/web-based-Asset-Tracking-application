@@ -9,25 +9,52 @@ import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import { useDispatch, useSelector } from 'react-redux';
+import { useToast } from '@chakra-ui/react';
 
 import { account } from '../../../_mock/account';
-
+import { logOutLocally } from '../../../features/authentication/authentication';
+import { useLogOutUserMutation } from '../../../features/resources/resources-api-slice';
 // ----------------------------------------------------------------------
 
 
 
 export default function AccountPopover() {
+  const toast = useToast()
   const [open, setOpen] = useState(null);
-  const loggedInUser = useSelector((state) => state.authentication.user);
-  const [user, setUser] = useState(loggedInUser)
-  
+  const user = useSelector((state) => state.authentication.user);
+  const dispatch = useDispatch()
+  const [logoutUserServerSide, { isLoading, error }] = useLogOutUserMutation()
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
   };
+  const refresh = localStorage.getItem('refresh')
+  console.log(refresh)
 
   const handleClose = () => {
     setOpen(null);
   };
+
+  async function logoutUser() {
+    await logoutUserServerSide().unwrap()
+    dispatch(logOutLocally())
+
+
+   // Logout error
+   useEffect(() => {
+    if (Boolean(error) && !isLoading) {
+        toast.close("logout")
+        toast({
+            id: "logout",
+            position: 'top-center',
+            title: `An error occurred`,
+            description: `${error?.originalStatus}: ${error?.status}`,
+            status: 'error',
+            duration: 2000,
+            isClosable: true,
+        })
+    }
+}, [error, isLoading])
+}
 
   return (
     <>
@@ -87,8 +114,8 @@ export default function AccountPopover() {
         <MenuItem
           disableRipple
           disableTouchRipple
-          onClick={handleClose}
           sx={{ typography: 'body2', color: 'error.main', py: 1.5 }}
+          onClick={logoutUser}
         >
           Logout
         </MenuItem>

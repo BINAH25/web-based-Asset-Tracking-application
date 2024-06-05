@@ -59,6 +59,7 @@ export default function OtpView() {
         })
     } else {
         localStorage.setItem('token', response['token'])
+        localStorage.setItem('refresh', response['refresh'])
         localStorage.setItem('user', JSON.stringify(response['user']))
         localStorage.setItem('user_permissions', JSON.stringify(response['user_permissions']))
 

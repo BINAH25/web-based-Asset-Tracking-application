@@ -28,9 +28,9 @@ import navConfig from './config-navigation';
 
 export default function Nav({ openNav, onCloseNav }) {
   const pathname = usePathname();
-  const loggedInUser = useSelector((state) => state.authentication.user);
-  const [user, setUser] = useState(loggedInUser)
+  const user = useSelector((state) => state.authentication.user);
   const upLg = useResponsive('up', 'lg');
+
 
   useEffect(() => {
     if (openNav) {

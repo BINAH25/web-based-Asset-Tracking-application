@@ -11,7 +11,7 @@ let user = null;
 try {
     user = JSON.parse(localStorage.getItem("user"))
 } catch (error) {
-    console.log(error)
+   // console.log(error)
 }
 
 export const authenticationSlice = createSlice({
@@ -60,26 +60,9 @@ export const apiSlice = createApi({
                     }
                 },
             }),
-            verifyUser: builder.mutation({
-                query(body) {
-                    return {
-                        url: `/api/auth/otp/verify/`,
-                        method: 'POST',
-                        body,
-                    }
-                },
-            }),
             
-            logOutUser: builder.mutation({
-                query() {
-                    return {
-                        url: `/api/auth/logout/`,
-                        method: 'POST',
-                    }
-                },
-            }),
         };
     },
 });
 
-export const { useLoginUserMutation,useVerifyUserMutation, useLogOutUserMutation } = apiSlice;
+export const { useLoginUserMutation } = apiSlice;
