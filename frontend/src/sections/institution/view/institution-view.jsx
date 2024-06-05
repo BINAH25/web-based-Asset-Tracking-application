@@ -39,7 +39,7 @@ const style = {
     boxShadow: 24,
     p: 4,
   };
-export default function UserPage() {
+export default function InstitutionPage() {
     const toast = useToast()
 
     const [page, setPage] = useState(0);

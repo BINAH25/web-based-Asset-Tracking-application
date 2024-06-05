@@ -110,6 +110,13 @@ export const resourceApiSlice = createApi({
                     return `/api/assets/products/`;
                 },
             }),
+
+            // assets
+            getAllAssets: builder.query({
+                query() {
+                    return `/api/assets/get/all/assets/`;
+                },
+            }),
         
            
            
@@ -141,7 +148,8 @@ export const {
     // products
     useLazyGetAllProductsQuery,
     usePutProductMutation,
-
+    // assets
+    useGetAllAssetsQuery,
    
     
 } = resourceApiSlice;

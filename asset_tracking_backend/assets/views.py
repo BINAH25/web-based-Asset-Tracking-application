@@ -186,13 +186,13 @@ class GetAllAsssetsAPI(generics.GenericAPIView):
             assets = Asset.objects.filter(owner=request.user).all().order_by('-created_at')
             serializers = self.serializer_class(assets,many=True)
             return Response(
-                {"status": "success", "detail": serializers.data},
+                {"status": "success_message", "detail": serializers.data},
                 status=200
             )          
         assets = Asset.objects.all().order_by('-created_at')
         serializers = self.serializer_class(assets,many=True)
         return Response(
-            {"status": "success", "detail": serializers.data},
+            {"status": "success_message", "detail": serializers.data},
             status=200
         )   
         

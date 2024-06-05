@@ -22,8 +22,8 @@ import CircularProgress from '@mui/material/CircularProgress';
 import TableEmptyRows from '../../user/table-empty-rows';
 import TableNoData from '../../user/table-no-data';
 import UserTableHead from '../../user/user-table-head';
-import ProductTableToolbar from '../product-table-toolbar';
-import ProductTableRow from '../product-table-row';
+import AssetTableToolbar from '../asset-table-toolbar';
+import AssetTableRow from '../asset-table-row';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
@@ -40,8 +40,8 @@ const style = {
     bgcolor: 'background.paper',
     boxShadow: 24,
     p: 4,
-};
-export default function ProductPage() {
+  };
+export default function AssetPage() {
     const toast = useToast()
 
     const [page, setPage] = useState(0);
@@ -306,7 +306,7 @@ const handleTagChange = (event) => {
       </Stack>
 
       <Card>
-        <ProductTableToolbar
+        <AssetTableToolbar
           numSelected={selected.length}
           filterName={filterName}
           onFilterName={handleFilterByName}
@@ -337,7 +337,7 @@ const handleTagChange = (event) => {
                 {dataFiltered
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
-                    <ProductTableRow
+                    <AssetTableRow
                       key={row.id}
                       tag={row.tag?.tag_id}
                       tag_name={row.tag?.tag_name}
