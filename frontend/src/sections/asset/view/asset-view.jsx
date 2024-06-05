@@ -29,6 +29,8 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import Grid from '@mui/material/Grid';
+
 import { fDate } from '../../../utils/format-time'
 // ----------------------------------------------------------------------
 const style = {
@@ -37,6 +39,16 @@ const style = {
     left: '50%',
     transform: 'translate(-50%, -50%)',
     width: 400,
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 4,
+  };
+const style2 = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 800,
     bgcolor: 'background.paper',
     boxShadow: 24,
     p: 4,
@@ -61,7 +73,19 @@ export default function AssetPage() {
     const [addProduct,  { isLoading, error }] = usePutProductMutation()
     const [products, setProducts] = useState([])
 
-    console.log(products)
+    const [editOpen, setEditOpen] = useState(false);
+    const [selectedItem, setSelectedItem] = useState(null);
+
+    const handleEditOpen = (item) => {
+        setSelectedItem(item);
+        setEditOpen(true);
+    };
+      
+    const handleEditClose = () => {
+        setEditOpen(false);
+        setSelectedItem(null);
+    };
+
     useEffect(() => {
       getAssets();
   }, [getAssets]);
@@ -212,7 +236,7 @@ export default function AssetPage() {
             isClosable: true,
         })
     }
-}, [errorGettingProducts, toast])
+    }, [errorGettingProducts, toast])
 
   useEffect(() => {
     if (error) {
@@ -225,11 +249,86 @@ export default function AssetPage() {
             isClosable: true,
         })
     }
-}, [error, toast])
+    }, [error, toast])
 
-const handleTagChange = (event) => {
-  setTag(event.target.value);
-};
+    const handleTagChange = (event) => {
+    setTag(event.target.value);
+    };
+    const renderEditForm = (
+        <Box sx={{ my: 2 }}>
+          <Grid container spacing={2}>
+            <Grid item xs={4} >
+              <Typography variant="subtitle1">Tag ID:</Typography>
+              <Typography variant="body1">{selectedItem?.product?.tag?.tag_id || 'N/A'}</Typography>
+            </Grid>
+            <Grid item xs={4} >
+              <Typography variant="subtitle1">Tag Name:</Typography>
+              <Typography variant="body1">{selectedItem?.product?.tag?.tag_name || 'N/A'}</Typography>
+            </Grid>
+            <Grid item xs={4} >
+              <Typography variant="subtitle1">Product Name:</Typography>
+              <Typography variant="body1">{selectedItem?.product?.product_name || 'N/A'}</Typography>
+            </Grid>
+            <Grid item xs={4} >
+              <Typography variant="subtitle1">Product Serial Number:</Typography>
+              <Typography variant="body1">{selectedItem?.product?.serial_number || 'N/A'}</Typography>
+            </Grid>
+            <Grid item xs={4} >
+              <Typography variant="subtitle1">Product Procurement Date:</Typography>
+              <Typography variant="body1">{fDate(selectedItem?.product?.procurement_date) || 'N/A'}</Typography>
+            </Grid>
+            <Grid item xs={4} >
+              <Typography variant="subtitle1"> Product Status:</Typography>
+              <Typography variant="body1">{selectedItem?.status || 'N/A'}</Typography>
+            </Grid>
+            <Grid item xs={4} >
+              <Typography variant="subtitle1">Owner:</Typography>
+              <Typography variant="body1">{selectedItem?.owner?.institution?.institution_name || 'N/A'}</Typography>
+            </Grid>
+            <Grid item xs={4} >
+              <Typography variant="subtitle1">Owner Location:</Typography>
+              <Typography variant="body1">{selectedItem?.owner?.institution?.location || 'N/A'}</Typography>
+            </Grid>
+            <Grid item xs={4} >
+              <Typography variant="subtitle1">Owner Phone Number:</Typography>
+              <Typography variant="body1">{selectedItem?.owner?.institution?.phone || 'N/A'}</Typography>
+            </Grid>
+            <Grid item xs={4} >
+              <Typography variant="subtitle1">Owner Phone Email:</Typography>
+              <Typography variant="body1">{selectedItem?.owner?.institution?.email || 'N/A'}</Typography>
+            </Grid>
+            <Grid item xs={4} >
+              <Typography variant="subtitle1">Owner  Username:</Typography>
+              <Typography variant="body1">{selectedItem?.owner?.institution?.username || 'N/A'}</Typography>
+            </Grid>
+            <Grid item xs={4} >
+              <Typography variant="subtitle1">Owner Institution Type :</Typography>
+              <Typography variant="body1">{selectedItem?.owner?.institution?.institution_type || 'N/A'}</Typography>
+            </Grid>
+            <Grid item xs={4} >
+              <Typography variant="subtitle1">Creation Date:</Typography>
+              <Typography variant="body1">{fDate(selectedItem?.created_at) || 'N/A'}</Typography>
+            </Grid>
+            <Grid item xs={4} >
+              <Typography variant="subtitle1">Created By:</Typography>
+              <Typography variant="body1">{selectedItem?.created_by?.username || 'N/A'}</Typography>
+            </Grid>
+          </Grid>
+          <Button
+            fullWidth
+            size="large"
+            type="submit"
+            variant="contained"
+            color="inherit"
+            onClick={handleEditClose}
+            sx={{ mt: 3 }}
+          >
+            Cancel 
+          </Button>
+        </Box>
+    );
+      
+//
   const renderForm = (
     <>
       <Stack spacing={3} sx={{ my: 2 }}>
@@ -335,6 +434,7 @@ const handleTagChange = (event) => {
                       created_by={row.created_by?.username}
                       selected={selected.indexOf(row.serial_number) !== -1}
                       handleClick={(event) => handleClick(event, row.serial_number)}
+                      onEditClick={() => handleEditOpen(row)} 
                     />
                   ))}
 
@@ -359,6 +459,21 @@ const handleTagChange = (event) => {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Card>
+      <Modal
+      open={editOpen}
+      onClose={handleEditClose}
+      aria-labelledby="modal-modal-title"
+      aria-describedby="modal-modal-description"
+    >
+      <Box sx={style2}>
+        <Stack alignItems="center">
+          <Typography variant="h4" sx={{ my: 1 }}>
+            Asset Information
+          </Typography>
+        </Stack>
+        {renderEditForm}
+      </Box>
+    </Modal>
     </Container>
   );
 }

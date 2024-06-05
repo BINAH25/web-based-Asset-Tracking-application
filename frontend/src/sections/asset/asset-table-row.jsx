@@ -23,6 +23,7 @@ export default function AssetTableRow({
   created_at,
   created_by,
   handleClick,
+  onEditClick,
 }) {
   const [open, setOpen] = useState(null);
 
@@ -33,6 +34,8 @@ export default function AssetTableRow({
   const handleCloseMenu = () => {
     setOpen(null);
   };
+
+  
 
   return (
     <>
@@ -72,12 +75,12 @@ export default function AssetTableRow({
           sx: { width: 140 },
         }}
       >
-        <MenuItem onClick={handleCloseMenu}>
-          <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
-          Edit
+        <MenuItem onClick={() => onEditClick()}>
+          <Iconify icon="eva:more-vertical-fill" sx={{ mr: 2 }} />
+          More
         </MenuItem>
 
-        <MenuItem onClick={handleCloseMenu} sx={{ color: 'error.main' }}>
+        <MenuItem  sx={{ color: 'error.main' }}>
           <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
           Delete
         </MenuItem>
@@ -95,4 +98,5 @@ AssetTableRow.propTypes = {
     created_at:PropTypes.any,
     selected: PropTypes.any,
     created_by: PropTypes.any,
+    onEditClick:PropTypes.func,
 };
