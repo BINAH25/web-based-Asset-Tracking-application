@@ -12,7 +12,9 @@ import TablePagination from '@mui/material/TablePagination';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
-import { useLazyGetAllTagsQuery,usePutTagMutation } from '../../../features/resources/resources-api-slice';
+import { useLazyGetAllTagsQuery,
+  usePutTagMutation,
+  useDeleteTagsMutation } from '../../../features/resources/resources-api-slice';
 import { useToast } from '@chakra-ui/react'
 import Iconify from '../../../components/iconify';
 import Scrollbar from '../../../components/scrollbar';
@@ -23,6 +25,7 @@ import UserTableHead from '../../user/user-table-head';
 import TagTableToolbar from '../tag-table-toolbar';
 import TagTableRow from '../tag-table-row';
 import { emptyRows, applyFilter, getComparator } from '../utils';
+import Grid from '@mui/material/Grid';
 
 // ----------------------------------------------------------------------
 const style = {
@@ -49,7 +52,21 @@ export default function TagPage() {
     const [tagName, setTagName] = useState('');
     const [getTags, { data: response = [],error: errorGettingTags }] = useLazyGetAllTagsQuery()
     const [addTag,  { isLoading, error }] = usePutTagMutation()
+    const [deleteTag,  { isLoading: tagLoading, error: tagerror }] = useDeleteTagsMutation()
     const [tags, setTags] = useState([])
+
+    const [deleteOpen, setDeleteOpen] = useState(false);
+    const [selectedItem, setSelectedItem] = useState(null);
+
+    const handleDeleteOpen = (item) => {
+      setSelectedItem(item);
+      setDeleteOpen(true);
+    };
+      
+    const handleDeleteClose = () => {
+      setDeleteOpen(false);
+      setSelectedItem(null);
+    };
 
 
   useEffect(() => {
@@ -122,8 +139,65 @@ useEffect(() => {
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-  
 
+  // Delete Tag
+  const handledeleteTag = async (event) => {
+    event.preventDefault()
+    const body = { 
+      id: selectedItem?.id
+    }
+    try {
+      const response = await deleteTag(body).unwrap()
+
+      if (response['error_message'] != null) {
+        toast({
+            position: 'top-center',
+            title: `An error occurred`,
+            description: response["error_message"],
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+        })
+    } else {
+      toast({
+        position: 'top-center',
+        title: 'OTP Sent',
+        description: response["success_message"],
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+    })
+      setTags((prevTags) => prevTags.filter((tag) => tag.id !== selectedItem.id));
+      handleDeleteClose()
+    }
+    } catch (err) {
+      toast({
+        position: 'top-center',
+        title: `An error occurred`,
+        description: err.originalStatus,
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+    })
+    }
+
+  }
+
+  useEffect(() => {
+    if (tagerror) {
+      toast({
+          position: 'top-center',
+          title: `An error occurred: ${tagerror.originalStatus}`,
+          description: tagerror.status,
+          status: 'error',
+          duration: 2000,
+          isClosable: true,
+      })
+    }
+  }, [tagerror, toast])
+
+
+  // Add Tag
   const handleAddTag = async (event) => {
     event.preventDefault()
     if (!tagID || !tagName) {
@@ -204,6 +278,46 @@ useEffect(() => {
         })
     }
 }, [error, toast])
+
+  const renderDeleteForm = (
+    <Box  sx={{ my: 2 }}>
+      <Grid container spacing={2}>
+        <Grid item xs={4} >
+          <Typography variant="subtitle1">Tag ID:</Typography>
+          <Typography variant="body1" >{selectedItem?.tag_id || 'N/A'}</Typography>
+        </Grid>
+        <Grid item xs={4} >
+          <Typography variant="subtitle1">Tag Name:</Typography>
+          <Typography variant="body1" >{selectedItem?.tag_name || 'N/A'}</Typography>
+        </Grid>
+      </Grid>
+    
+      <Button
+        fullWidth
+        size="large"
+        type="submit"
+        variant="contained"
+        color="error"
+        disabled={tagLoading}
+        onClick={handledeleteTag}
+        sx={{ my: 2 }}
+      >
+         {tagLoading && <CircularProgress size={30}/>}
+        Delete Tag
+      </Button>
+      <Button
+        fullWidth
+        size="large"
+        type="button"
+        variant="contained"
+        color="inherit"
+        onClick={handleDeleteClose}
+        sx={{ my: 2 }}
+      >
+        Cancel
+      </Button>
+    </Box>
+  );
 
   const renderForm = (
     <>
@@ -297,6 +411,7 @@ useEffect(() => {
                       created_by={row.created_by.username}
                       selected={selected.indexOf(row.usernane) !== -1}
                       handleClick={(event) => handleClick(event, row.usernane)}
+                      onDeleteClick={() => handleDeleteOpen(row)} 
                     />
                   ))}
 
@@ -321,6 +436,21 @@ useEffect(() => {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Card>
+      <Modal
+      open={deleteOpen}
+      onClose={handleDeleteClose}
+      aria-labelledby="modal-modal-title"
+      aria-describedby="modal-modal-description"
+    >
+      <Box  sx={style}>
+        <Stack >
+          <Typography variant="h4" sx={{ my: 1, textAlign: 'center' }}>
+            Are you sure you to delete this Tag?
+          </Typography>
+        </Stack>
+        {renderDeleteForm}
+      </Box>
+    </Modal>
     </Container>
   );
 }

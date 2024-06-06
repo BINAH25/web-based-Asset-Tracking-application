@@ -104,6 +104,16 @@ export const resourceApiSlice = createApi({
                 },
             }),
 
+            deleteTags: builder.mutation({
+                query(body) {
+                    return {
+                        url: `/api/assets/tags/`,
+                        method: 'DELETE',
+                        body,
+                    }
+                },
+            }),
+
             // products
             putProduct: builder.mutation({
                 query(body) {
@@ -167,6 +177,7 @@ export const {
     // tags
     useLazyGetAllTagsQuery,
     usePutTagMutation,
+    useDeleteTagsMutation,
     // products
     useLazyGetAllProductsQuery,
     usePutProductMutation,
