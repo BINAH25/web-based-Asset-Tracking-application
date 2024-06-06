@@ -75,7 +75,6 @@ export default function OtpView() {
         dispatch(setToken(setToken['token']));
         dispatch(setUserPermissions(response['user_permissions']))
         setUser(response['user'])
-        router.push('/dashboard');
     }
     } catch (err) {
       toast({
@@ -118,39 +117,44 @@ export default function OtpView() {
   );
 
   return (
-    <Box
-      sx={{
-        ...bgGradient({
-          color: alpha(theme.palette.background.default, 0.9),
-          imgUrl: '/assets/background/overlay_4.jpg',
-        }),
-        height: 1,
-      }}
-    >
-      <Logo
+    <>
+    {user && (
+      <Navigate to="/dashboard" replace={true} />
+    )}
+      <Box
         sx={{
-          position: 'fixed',
-          top: { xs: 16, md: 24 },
-          left: { xs: 16, md: 24 },
+          ...bgGradient({
+            color: alpha(theme.palette.background.default, 0.9),
+            imgUrl: '/assets/background/overlay_4.jpg',
+          }),
+          height: 1,
         }}
-      />
-
-      <Stack alignItems="center" justifyContent="center" sx={{ height: 1 }}>
-        <Card
-          sx={{
-            p: 5,
-            width: 1,
-            maxWidth: 420,
-          }}
         >
-          <Stack alignItems="center">
-            <Typography variant="h4" sx={{ my: 3 }}>
-              Enter the OTP sent to your email
-            </Typography>
-          </Stack>
-          {renderForm}
-        </Card>
-      </Stack>
-    </Box>
+        <Logo
+          sx={{
+            position: 'fixed',
+            top: { xs: 16, md: 24 },
+            left: { xs: 16, md: 24 },
+          }}
+          />
+
+        <Stack alignItems="center" justifyContent="center" sx={{ height: 1 }}>
+          <Card
+            sx={{
+              p: 5,
+              width: 1,
+              maxWidth: 420,
+            }}
+            >
+            <Stack alignItems="center">
+              <Typography variant="h4" sx={{ my: 3 }}>
+                Enter the OTP sent to your email
+              </Typography>
+            </Stack>
+            {renderForm}
+          </Card>
+        </Stack>
+      </Box>
+    </>
   );
 }

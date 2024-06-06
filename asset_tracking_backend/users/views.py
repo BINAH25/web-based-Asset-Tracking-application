@@ -229,7 +229,6 @@ class LogOutAPI(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
     def post(self, request,*args, **kwargs):
         refresh_token = request.data["refresh"]
-        print(refresh_token)
         try:
             token = RefreshToken(refresh_token)
             token.blacklist()

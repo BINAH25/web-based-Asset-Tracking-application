@@ -27,9 +27,7 @@ import Iconify from '../../components/iconify';
 export default function LoginView() {
   const theme = useTheme();
   const toast = useToast()
-
-  const router = useRouter();
-
+  const user = useSelector((state) => state.authentication.user);
   const [showPassword, setShowPassword] = useState(false);
   const [loginUser, { isLoading }] = useLoginUserMutation()
   const [username, setUsername] = useState('')
@@ -46,9 +44,8 @@ export default function LoginView() {
         duration: 5000,
         isClosable: true,
       });
-      return; // Stop the function from proceeding
+      return; 
     }
-    //router.push('/dashboard');
     const body = { username: username, password: password }
     try {
       const response = await loginUser(body).unwrap()
@@ -134,39 +131,44 @@ export default function LoginView() {
   );
 
   return (
-    <Box
-      sx={{
-        ...bgGradient({
-          color: alpha(theme.palette.background.default, 0.9),
-          imgUrl: '/assets/background/overlay_4.jpg',
-        }),
-        height: 1,
-      }}
-    >
-      <Logo
+    <>
+    {user && (
+      <Navigate to="/dashboard" replace={true} />
+    )}
+      <Box
         sx={{
-          position: 'fixed',
-          top: { xs: 16, md: 24 },
-          left: { xs: 16, md: 24 },
+          ...bgGradient({
+            color: alpha(theme.palette.background.default, 0.9),
+            imgUrl: '/assets/background/overlay_4.jpg',
+          }),
+          height: 1,
         }}
-      />
-
-      <Stack alignItems="center" justifyContent="center" sx={{ height: 1 }}>
-        <Card
-          sx={{
-            p: 5,
-            width: 1,
-            maxWidth: 420,
-          }}
         >
-          <Stack alignItems="center">
-            <Typography variant="h4" sx={{ my: 3 }}>
-              Welcome Sign In
-            </Typography>
-          </Stack>
-          {renderForm}
-        </Card>
-      </Stack>
-    </Box>
+        <Logo
+          sx={{
+            position: 'fixed',
+            top: { xs: 16, md: 24 },
+            left: { xs: 16, md: 24 },
+          }}
+          />
+
+        <Stack alignItems="center" justifyContent="center" sx={{ height: 1 }}>
+          <Card
+            sx={{
+              p: 5,
+              width: 1,
+              maxWidth: 420,
+            }}
+            >
+            <Stack alignItems="center">
+              <Typography variant="h4" sx={{ my: 3 }}>
+                Welcome Sign In
+              </Typography>
+            </Stack>
+            {renderForm}
+          </Card>
+        </Stack>
+      </Box>
+    </>
   );
 }
