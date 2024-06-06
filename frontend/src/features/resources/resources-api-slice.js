@@ -143,6 +143,15 @@ export const resourceApiSlice = createApi({
                     return `/api/assets/get/available/products/`;
                 },
             }),
+            deleteProducts: builder.mutation({
+                query(body) {
+                    return {
+                        url: `/api/assets/products/`,
+                        method: 'DELETE',
+                        body,
+                    }
+                },
+            }),
 
             // assets
             putAsset: builder.mutation({
@@ -170,8 +179,6 @@ export const resourceApiSlice = createApi({
 export const {
     useLazyGetUserPermissionsQuery,
 
-   
-
     // Users
     useLazyGetUsersQuery,
     useRegisterUserMutation,
@@ -192,6 +199,7 @@ export const {
     useLazyGetAllProductsQuery,
     usePutProductMutation,
     useLazyGetAllAvailableProductsQuery,
+    useDeleteProductsMutation,
     // assets
     useLazyGetAllAssetsQuery,
     usePutAssetMutation,

@@ -24,6 +24,7 @@ export default function ProductTableRow({
   created_by,
   procurement_date,
   handleClick,
+  onDeleteClick,
 }) {
   const [open, setOpen] = useState(null);
 
@@ -79,7 +80,7 @@ export default function ProductTableRow({
           Edit
         </MenuItem>
 
-        <MenuItem onClick={handleCloseMenu} sx={{ color: 'error.main' }}>
+        <MenuItem onClick={() => onDeleteClick()} sx={{ color: 'error.main' }}>
           <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
           Delete
         </MenuItem>
@@ -98,4 +99,5 @@ ProductTableRow.propTypes = {
     procurement_date:PropTypes.any,
     selected: PropTypes.any,
     created_by: PropTypes.any,
+    onDeleteClick:PropTypes.func,
 };

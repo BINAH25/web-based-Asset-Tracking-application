@@ -206,17 +206,17 @@ useEffect(() => {
   }
 
   useEffect(() => {
-    if (userLoading) {
+    if (userError) {
       toast({
           position: 'top-center',
-          title: `An error occurred: ${userLoading.originalStatus}`,
-          description: userLoading.status,
+          title: `An error occurred: ${userError.originalStatus}`,
+          description: userError.status,
           status: 'error',
           duration: 2000,
           isClosable: true,
       })
     }
-  }, [userLoading, toast])
+  }, [userError, toast])
 
 
   // add user

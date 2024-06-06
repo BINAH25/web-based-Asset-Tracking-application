@@ -14,6 +14,7 @@ import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import { useLazyGetAllProductsQuery,
   usePutProductMutation,
+  useDeleteProductsMutation,
   useLazyGetAllTagsQuery } from '../../../features/resources/resources-api-slice';
 import { useToast } from '@chakra-ui/react'
 import Iconify from '../../../components/iconify';
@@ -30,6 +31,8 @@ import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { fDate, fDateTime,fTimestamp } from '../../../utils/format-time'
+import Grid from '@mui/material/Grid';
+
 // ----------------------------------------------------------------------
 const style = {
     position: 'absolute',
@@ -59,7 +62,20 @@ export default function ProductPage() {
 
     const [getProducts, { data: response = [],error: errorGettingProducts }] = useLazyGetAllProductsQuery()
     const [addProduct,  { isLoading, error }] = usePutProductMutation()
+    const [deleteProduct,  { isLoading: productLoading, error: productError }] = useDeleteProductsMutation()
     const [products, setProducts] = useState([])
+    const [deleteOpen, setDeleteOpen] = useState(false);
+    const [selectedItem, setSelectedItem] = useState(null);
+
+    const handleDeleteOpen = (item) => {
+      setSelectedItem(item);
+      setDeleteOpen(true);
+    };
+      
+    const handleDeleteClose = () => {
+      setDeleteOpen(false);
+      setSelectedItem(null);
+    }
 
 
     useEffect(() => {
@@ -144,7 +160,63 @@ export default function ProductPage() {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   
+  // delete product
+  const handleDeleteProduct = async (event) => {
+    event.preventDefault()
+    const body = { 
+      id: selectedItem?.id
+    }
+    try {
+      const response = await deleteProduct(body).unwrap()
 
+      if (response['error_message'] != null) {
+        toast({
+            position: 'top-center',
+            title: `An error occurred`,
+            description: response["error_message"],
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+        })
+    } else {
+      toast({
+        position: 'top-center',
+        title: 'OTP Sent',
+        description: response["success_message"],
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+    })
+      setProducts((prevTags) => prevTags.filter((product) => product.id !== selectedItem.id));
+      handleDeleteClose()
+    }
+    } catch (err) {
+      toast({
+        position: 'top-center',
+        title: `An error occurred`,
+        description: err.originalStatus,
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+    })
+    }
+
+  }
+
+  useEffect(() => {
+    if (productError) {
+      toast({
+          position: 'top-center',
+          title: `An error occurred: ${productError.originalStatus}`,
+          description: productError.status,
+          status: 'error',
+          duration: 2000,
+          isClosable: true,
+      })
+    }
+  }, [productError, toast])
+
+  // ADD PRODUCT
   const handleAddProdduct = async (event) => {
     event.preventDefault()
     if (!tag || !serialNumber || !productName) {
@@ -230,6 +302,53 @@ export default function ProductPage() {
 const handleTagChange = (event) => {
   setTag(event.target.value);
 };
+
+  // DELETE PRODUCT
+  const renderDeleteForm = (
+    <Box  sx={{ my: 2 }}>
+      <Grid container spacing={2}>
+        <Grid item xs={4} >
+          <Typography variant="subtitle1">Product Tag:</Typography>
+          <Typography variant="body1" >{selectedItem?.tag?.tag_name || 'N/A'}</Typography>
+        </Grid>
+        <Grid item xs={4} >
+          <Typography variant="subtitle1">Product Serial Number:</Typography>
+          <Typography variant="body1" >{selectedItem?.serial_number || 'N/A'}</Typography>
+        </Grid>
+        <Grid item xs={4} >
+          <Typography variant="subtitle1">Product  Name:</Typography>
+          <Typography variant="body1" >{selectedItem?.product_name || 'N/A'}</Typography>
+        </Grid>
+      </Grid>
+    
+      <Button
+        fullWidth
+        size="large"
+        type="submit"
+        variant="contained"
+        color="error"
+        sx={{ my: 2 }}
+        disabled={productLoading}
+        onClick={handleDeleteProduct}
+      >
+        Delete Product
+      </Button>
+
+      <Button
+        fullWidth
+        size="large"
+        type="button"
+        variant="contained"
+        color="inherit"
+        onClick={handleDeleteClose}
+        sx={{ my: 2 }}
+      >
+        Cancel
+      </Button>
+    </Box>
+  );
+
+  // ADD PRODUCT FORM 
   const renderForm = (
     <>
       <Stack spacing={3} sx={{ my: 2 }}>
@@ -348,6 +467,7 @@ const handleTagChange = (event) => {
                       created_by={row.created_by?.username}
                       selected={selected.indexOf(row.serial_number) !== -1}
                       handleClick={(event) => handleClick(event, row.serial_number)}
+                      onDeleteClick={() => handleDeleteOpen(row)}
                     />
                   ))}
 
@@ -372,6 +492,21 @@ const handleTagChange = (event) => {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Card>
+      <Modal
+      open={deleteOpen}
+      onClose={handleDeleteClose}
+      aria-labelledby="modal-modal-title"
+      aria-describedby="modal-modal-description"
+    >
+      <Box  sx={style}>
+        <Stack >
+          <Typography variant="h4" sx={{ my: 1, textAlign: 'center' }}>
+            Are you sure you want to delete this product?
+          </Typography>
+        </Stack>
+          {renderDeleteForm}
+      </Box>
+    </Modal>
     </Container>
   );
 }
