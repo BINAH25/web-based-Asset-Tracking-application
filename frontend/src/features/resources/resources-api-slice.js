@@ -87,6 +87,15 @@ export const resourceApiSlice = createApi({
                     return `/api/get/all/new/institutions/`;
                 },
             }),
+            deleteInstitutions: builder.mutation({
+                query(body) {
+                    return {
+                        url: `/api/institutions/`,
+                        method: 'DELETE',
+                        body,
+                    }
+                },
+            }),
 
             // tags
             putTag: builder.mutation({
@@ -173,6 +182,7 @@ export const {
     useLazyGetAllInstitutionsQuery,
     useLazyGetAllNewInstitutionsQuery,
     usePutInstitutionMutation,
+    useDeleteInstitutionsMutation,
 
     // tags
     useLazyGetAllTagsQuery,

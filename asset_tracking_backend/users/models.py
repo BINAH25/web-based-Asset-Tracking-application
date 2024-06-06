@@ -27,7 +27,7 @@ class Institution(models.Model):
         return str(self.institution_name) + " " + str(self.id)
     
 class User(AbstractUser):
-    institution =  models.ForeignKey(Institution, on_delete=models.SET_NULL, null=True, blank=True)
+    institution =  models.ForeignKey(Institution, on_delete=models.CASCADE, null=True, blank=True)
     created_by = models.ForeignKey(
         "User", related_name="created_users", on_delete=models.SET_NULL, null=True, blank=True)
     otp = models.CharField(max_length=6, null=True, blank=True)

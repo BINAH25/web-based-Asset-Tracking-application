@@ -18,7 +18,7 @@ class Product(models.Model):
     serial_number = models.CharField(max_length=100, unique=True)
     product_name = models.CharField(max_length=100)
     availability = models.CharField(max_length=100, default="Available")
-    created_by =  models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    created_by =  models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     procurement_date = models.DateField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

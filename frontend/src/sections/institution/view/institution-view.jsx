@@ -16,7 +16,9 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import { useLazyGetAllInstitutionsQuery,usePutInstitutionMutation } from '../../../features/resources/resources-api-slice';
+import { useLazyGetAllInstitutionsQuery,
+  usePutInstitutionMutation,
+  useDeleteInstitutionsMutation } from '../../../features/resources/resources-api-slice';
 import { useToast } from '@chakra-ui/react'
 import Iconify from '../../../components/iconify';
 import Scrollbar from '../../../components/scrollbar';
@@ -27,6 +29,7 @@ import InstitutionTableRow from '../institution-table-row';
 import UserTableHead from '../../user/user-table-head';
 import InstitutionTableToolbar from '../institution-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../../user/utils';
+import Grid from '@mui/material/Grid';
 
 // ----------------------------------------------------------------------
 const style = {
@@ -40,36 +43,50 @@ const style = {
     p: 4,
   };
 export default function InstitutionPage() {
-    const toast = useToast()
 
-    const [page, setPage] = useState(0);
-    const [order, setOrder] = useState('asc');
-    const [selected, setSelected] = useState([]);
-    const [orderBy, setOrderBy] = useState('name');
-    const [filterName, setFilterName] = useState('');
-    const [rowsPerPage, setRowsPerPage] = useState(5);
-    const [open, setOpen] = useState(false);
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [institutionName, setInstitutionName] = useState('');
-    const [phone, setPhone] = useState('');
-    const [location, setLocation] = useState('');
-    const [institutionType, setInstitutionType] = useState('');
-    const [getInstitutions, { data: response = [] }] = useLazyGetAllInstitutionsQuery()
-    const [addInstitutions,  { isLoading, error }] = usePutInstitutionMutation()
-    const [institutions, setInstitutions] = useState([])
+  const toast = useToast()
+  const [page, setPage] = useState(0);
+  const [order, setOrder] = useState('asc');
+  const [selected, setSelected] = useState([]);
+  const [orderBy, setOrderBy] = useState('name');
+  const [filterName, setFilterName] = useState('');
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [open, setOpen] = useState(false);
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [institutionName, setInstitutionName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [location, setLocation] = useState('');
+  const [institutionType, setInstitutionType] = useState('');
+  const [getInstitutions, { data: response = [] }] = useLazyGetAllInstitutionsQuery()
+  const [addInstitutions,  { isLoading, error }] = usePutInstitutionMutation()
+  const [institutions, setInstitutions] = useState([])
+  const [deleteInstitution,  { isLoading: institutionLoading, error: institutionError }] = useDeleteInstitutionsMutation()
+
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  const handleDeleteOpen = (item) => {
+    setSelectedItem(item);
+    setDeleteOpen(true);
+  };
+    
+  const handleDeleteClose = () => {
+    setDeleteOpen(false);
+    setSelectedItem(null);
+  }
 
 
   useEffect(() => {
     getInstitutions();
-}, [getInstitutions]);
+  }, [getInstitutions]);
 
 
-useEffect(() => {
-    if (response && Array.isArray(response.success_message)) {
-        setInstitutions(response.success_message);
-    }
-}, [response]);
+  useEffect(() => {
+      if (response && Array.isArray(response.success_message)) {
+          setInstitutions(response.success_message);
+      }
+  }, [response]);
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -134,7 +151,63 @@ useEffect(() => {
     setInstitutionType(event.target.value);
   };
 
+  // delete institution
+  const handledeleteInstitution = async (event) => {
+    event.preventDefault()
+    const body = { 
+      id: selectedItem?.id
+    }
+    try {
+      const response = await deleteInstitution(body).unwrap()
 
+      if (response['error_message'] != null) {
+        toast({
+            position: 'top-center',
+            title: `An error occurred`,
+            description: response["error_message"],
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+        })
+    } else {
+      toast({
+        position: 'top-center',
+        title: 'OTP Sent',
+        description: response["success_message"],
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+    })
+      setInstitutions((prevTags) => prevTags.filter((tag) => tag.id !== selectedItem.id));
+      handleDeleteClose()
+    }
+    } catch (err) {
+      toast({
+        position: 'top-center',
+        title: `An error occurred`,
+        description: err.originalStatus,
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+    })
+    }
+
+  }
+
+  useEffect(() => {
+    if (institutionError) {
+      toast({
+          position: 'top-center',
+          title: `An error occurred: ${institutionError.originalStatus}`,
+          description: institutionError.status,
+          status: 'error',
+          duration: 2000,
+          isClosable: true,
+      })
+    }
+  }, [institutionError, toast])
+
+  // add instituition
   const handleAddInstitution = async (event) => {
     event.preventDefault()
     if (!username || !email || !institutionName || !location || !phone || !institutionType) {
@@ -193,6 +266,51 @@ useEffect(() => {
       }
 
   }
+  // delete institution
+  const renderDeleteForm = (
+    <Box  sx={{ my: 2 }}>
+      <Grid container spacing={2}>
+        <Grid item xs={4} >
+          <Typography variant="subtitle1">Institution Username:</Typography>
+          <Typography variant="body1" >{selectedItem?.username || 'N/A'}</Typography>
+        </Grid>
+        <Grid item xs={4} >
+          <Typography variant="subtitle1">Institution Name:</Typography>
+          <Typography variant="body1" >{selectedItem?.institution_name || 'N/A'}</Typography>
+        </Grid>
+        <Grid item xs={4} >
+          <Typography variant="subtitle1">Institution Type:</Typography>
+          <Typography variant="body1" >{selectedItem?.institution_type || 'N/A'}</Typography>
+        </Grid>
+      </Grid>
+    
+      <Button
+        fullWidth
+        size="large"
+        type="submit"
+        variant="contained"
+        color="error"
+        onClick={handledeleteInstitution}
+        disabled={institutionLoading}
+        sx={{ my: 2 }}
+      >
+        {institutionLoading && <CircularProgress size={30}/>}
+        Delete Institution
+      </Button>
+
+      <Button
+        fullWidth
+        size="large"
+        type="button"
+        variant="contained"
+        color="inherit"
+        onClick={handleDeleteClose}
+        sx={{ my: 2 }}
+      >
+        Cancel
+      </Button>
+    </Box>
+  );
 
   const renderForm = (
     <>
@@ -324,6 +442,7 @@ useEffect(() => {
                       institution_type={row.institution_type}
                       selected={selected.indexOf(row.usernane) !== -1}
                       handleClick={(event) => handleClick(event, row.usernane)}
+                      onDeleteClick={() => handleDeleteOpen(row)} 
                     />
                   ))}
 
@@ -348,6 +467,21 @@ useEffect(() => {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Card>
+      <Modal
+      open={deleteOpen}
+      onClose={handleDeleteClose}
+      aria-labelledby="modal-modal-title"
+      aria-describedby="modal-modal-description"
+    >
+      <Box  sx={style}>
+        <Stack >
+          <Typography variant="h4" sx={{ my: 1, textAlign: 'center' }}>
+            Are you sure you to delete this Tag?
+          </Typography>
+        </Stack>
+        {renderDeleteForm}
+      </Box>
+    </Modal>
     </Container>
   );
 }
