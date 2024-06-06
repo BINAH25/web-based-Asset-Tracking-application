@@ -47,9 +47,9 @@ export const resourceApiSlice = createApi({
             }),
 
             deleteUsers: builder.mutation({
-                query() {
+                query(body) {
                     return {
-                        url: `/users/`,
+                        url: `/api/users/`,
                         method: 'DELETE',
                         body,
                     }

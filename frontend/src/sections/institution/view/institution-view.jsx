@@ -476,7 +476,7 @@ export default function InstitutionPage() {
       <Box  sx={style}>
         <Stack >
           <Typography variant="h4" sx={{ my: 1, textAlign: 'center' }}>
-            Are you sure you to delete this Tag?
+            Are you sure you  want to delete this Institution?
           </Typography>
         </Stack>
         {renderDeleteForm}

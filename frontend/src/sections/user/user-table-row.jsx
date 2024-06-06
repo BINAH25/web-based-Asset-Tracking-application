@@ -21,6 +21,7 @@ export default function UserTableRow({
   institution,
   created_by,
   handleClick,
+  onDeleteClick,
 }) {
   const [open, setOpen] = useState(null);
 
@@ -77,7 +78,7 @@ export default function UserTableRow({
           Edit
         </MenuItem>
 
-        <MenuItem onClick={handleCloseMenu} sx={{ color: 'error.main' }}>
+        <MenuItem onClick={() => onDeleteClick()} sx={{ color: 'error.main' }}>
           <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
           Delete
         </MenuItem>
@@ -93,4 +94,5 @@ UserTableRow.propTypes = {
   institution: PropTypes.any,
   created_by: PropTypes.any,
   handleClick: PropTypes.func,
+  onDeleteClick: PropTypes.func,
 };

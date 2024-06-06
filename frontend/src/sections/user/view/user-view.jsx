@@ -10,7 +10,8 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 import { useLazyGetUsersQuery,
-  useLazyGetAllNewInstitutionsQuery, 
+  useLazyGetAllNewInstitutionsQuery,
+  useDeleteUsersMutation, 
   useRegisterUserMutation } from '../../../features/resources/resources-api-slice';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
@@ -31,6 +32,7 @@ import UserTableHead from '../user-table-head';
 import TableEmptyRows from '../table-empty-rows';
 import UserTableToolbar from '../user-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
+import Grid from '@mui/material/Grid';
 
 // ----------------------------------------------------------------------
 const style = {
@@ -60,10 +62,24 @@ export default function UserPage() {
   const [institution, setInstitution] = useState('');
   const [institutions, setInstitutions] = useState([]);
   const [addUser,  { isLoading, error }] = useRegisterUserMutation()
+  const [deleteUser,  { isLoading: userLoading, error: userError }] = useDeleteUsersMutation()
 
   const [users, SetUsers] = useState([])
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  const handleDeleteOpen = (item) => {
+    setSelectedItem(item);
+    setDeleteOpen(true);
+  };
+    
+  const handleDeleteClose = () => {
+    setDeleteOpen(false);
+    setSelectedItem(null);
+  }
+
 
   useEffect(() => {
     getusers();
@@ -145,6 +161,65 @@ useEffect(() => {
     setInstitution(event.target.value);
   };
 
+  
+  // delete user
+  const handleDeleteUser = async (event) => {
+    event.preventDefault()
+    const body = { 
+      id: selectedItem?.id
+    }
+    try {
+      const response = await deleteUser(body).unwrap()
+
+      if (response['error_message'] != null) {
+        toast({
+            position: 'top-center',
+            title: `An error occurred`,
+            description: response["error_message"],
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+        })
+    } else {
+      toast({
+        position: 'top-center',
+        title: 'OTP Sent',
+        description: response["success_message"],
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+    })
+      SetUsers((prevTags) => prevTags.filter((user) => user.id !== selectedItem.id));
+      handleDeleteClose()
+    }
+    } catch (err) {
+      toast({
+        position: 'top-center',
+        title: `An error occurred`,
+        description: err.originalStatus,
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+    })
+    }
+
+  }
+
+  useEffect(() => {
+    if (userLoading) {
+      toast({
+          position: 'top-center',
+          title: `An error occurred: ${userLoading.originalStatus}`,
+          description: userLoading.status,
+          status: 'error',
+          duration: 2000,
+          isClosable: true,
+      })
+    }
+  }, [userLoading, toast])
+
+
+  // add user
   const handleAddUser = async (event) => {
     event.preventDefault()
     if (!institution || !password) {
@@ -217,6 +292,53 @@ useEffect(() => {
     }
 }, [error, toast])
 
+  // DELETE INSTITUTION
+  const renderDeleteForm = (
+    <Box  sx={{ my: 2 }}>
+      <Grid container spacing={2}>
+        <Grid item xs={4} >
+          <Typography variant="subtitle1">Username:</Typography>
+          <Typography variant="body1" >{selectedItem?.username || 'N/A'}</Typography>
+        </Grid>
+        <Grid item xs={4} >
+          <Typography variant="subtitle1">Institution Name:</Typography>
+          <Typography variant="body1" >{selectedItem?.institution?.institution_name || 'N/A'}</Typography>
+        </Grid>
+        <Grid item xs={4} >
+          <Typography variant="subtitle1">Institution Type:</Typography>
+          <Typography variant="body1" >{selectedItem?.institution?.institution_type || 'N/A'}</Typography>
+        </Grid>
+      </Grid>
+    
+      <Button
+        fullWidth
+        size="large"
+        type="submit"
+        variant="contained"
+        color="error"
+        sx={{ my: 2 }}
+        disabled={userLoading}
+        onClick={handleDeleteUser}
+      >
+        {userLoading && <CircularProgress size={30}/>}
+        Delete User
+      </Button>
+
+      <Button
+        fullWidth
+        size="large"
+        type="button"
+        variant="contained"
+        color="inherit"
+        onClick={handleDeleteClose}
+        sx={{ my: 2 }}
+      >
+        Cancel
+      </Button>
+    </Box>
+  );
+
+  // ADD INSTITUTION
   const renderForm = (
     <>
       <Stack spacing={3} sx={{ my: 2 }}>
@@ -335,6 +457,7 @@ useEffect(() => {
                       created_by={row.created_by?.username}
                       selected={selected.indexOf(row.username) !== -1}
                       handleClick={(event) => handleClick(event, row.username)}
+                      onDeleteClick={() => handleDeleteOpen(row)}
                     />
                   ))}
 
@@ -359,6 +482,21 @@ useEffect(() => {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Card>
+      <Modal
+      open={deleteOpen}
+      onClose={handleDeleteClose}
+      aria-labelledby="modal-modal-title"
+      aria-describedby="modal-modal-description"
+    >
+      <Box  sx={style}>
+        <Stack >
+          <Typography variant="h4" sx={{ my: 1, textAlign: 'center' }}>
+            Are you sure you want to delete this user?
+          </Typography>
+        </Stack>
+          {renderDeleteForm}
+      </Box>
+    </Modal>
     </Container>
   );
 }
