@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 
+import { jwtDecode } from "jwt-decode";
 import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
 import Divider from '@mui/material/Divider';
@@ -14,6 +15,7 @@ import { useRouter } from '../../../routes/hooks';
 import { account } from '../../../_mock/account';
 import { logOutLocally } from '../../../features/authentication/authentication';
 import { useLogOutUserMutation } from '../../../features/resources/resources-api-slice';
+
 // ----------------------------------------------------------------------
 
 
@@ -30,13 +32,55 @@ export default function AccountPopover() {
   };
   const refresh = localStorage.getItem('refresh')
 
+  const token = localStorage.getItem('token')
+
   const handleClose = () => {
     setOpen(null);
   };
 
+  // log out the user when the token expired
+  function checkTokenExpiration() {
+    if (!token) {
+      dispatch(logOutLocally())
+      router.push('/');
+      return;
+  }
+
+    try {
+        const decodedToken = jwtDecode(token);
+        const currentTime = Date.now() / 1000;
+
+        if (decodedToken.exp < currentTime) {
+          toast({
+            position: 'top-center',
+            title: `An error occurred`,
+            description: 'token expired logging out',
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+        })
+          dispatch(logOutLocally())
+          router.push('/');
+        }
+    } catch (error) {
+        toast({
+          position: 'top-center',
+          title: `An error occurred`,
+          description: error,
+          status: 'error',
+          duration: 2000,
+          isClosable: true,
+      })
+
+    }
+
+}
+
+// Call this function periodically to check the token expiration
+setInterval(checkTokenExpiration, 60000); // Check every 1 minute
+
   async function logoutUser() {
     const body = { refresh: refresh}
-    console.log(body)
     try {
       const response = await logoutUserServerSide(body).unwrap()
       if (response['error_message'] != null) {

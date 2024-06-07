@@ -6,7 +6,6 @@ export const InstititionPage =  lazy(() => import('../pages/institution'));
 export const OtpPage =  lazy(() => import('../pages/otp'));
 export const AssetPage =  lazy(() => import('../pages/asset'));
 export const IndexPage = lazy(() => import('../pages/app'));
-export const BlogPage = lazy(() => import('../pages/blog'));
 export const UserPage = lazy(() => import('../pages/user'));
 export const LoginPage = lazy(() => import('../pages/login'));
 export const TagPage = lazy(() => import('../pages/tag'));
@@ -32,7 +31,6 @@ export default function Router() {
         { path: 'tag', element: <TagPage /> },
         { path: 'user', element: <UserPage /> },
         { path: 'products', element: <ProductsPage /> },
-        { path: 'blog', element: <BlogPage /> },
       ],
     },
     {
