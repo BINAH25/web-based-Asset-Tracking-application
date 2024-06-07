@@ -31,7 +31,7 @@ import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Grid from '@mui/material/Grid';
-
+import Sort from '../sort';
 import { fDate } from '../../../utils/format-time'
 // ----------------------------------------------------------------------
 const style = {
@@ -71,6 +71,7 @@ export default function AssetPage() {
     const [users, SetUsers] = useState([])
     const [user, SetUser] = useState('')
 
+    const [filter, setFilter] = useState('')
     const [getAssets, { data: response = [],error: errorGettingAssets }] = useLazyGetAllAssetsQuery()
     const [addAsset,  { isLoading, error }] = usePutAssetMutation()
     const [assets, setAssets] = useState([])
@@ -226,7 +227,7 @@ export default function AssetPage() {
         setAvailableProducts((prevProducts) => 
             prevProducts.filter(prod => prod.id !== product)
           );
-        setUser('')
+        SetUser('')
         setProduct('')
         handleClose()
       }
@@ -275,6 +276,10 @@ export default function AssetPage() {
 
     const handleUserChange = (event) => {
         SetUser(event.target.value);
+    };
+    // filter by status
+    const handleFilterChange = (event) => {
+      setFilter(event.target.value);
     };
     const renderEditForm = (
         <Box sx={{ my: 2 }}>
@@ -434,11 +439,23 @@ export default function AssetPage() {
       </Stack>
 
       <Card>
+        <Stack  direction="row" alignItems="center" justifyContent="space-between">
         <AssetTableToolbar
           numSelected={selected.length}
           filterName={filterName}
           onFilterName={handleFilterByName}
         />
+        <Sort
+          options={[
+            { value: 'all', label: 'all' },
+            { value: 'Functional', label: 'functional' },
+            { value: 'Maintenance', label: 'maintenance' },
+            { value: 'Spoilt', label: 'spoilt' },
+          ]}
+          onFilter={handleFilterChange}
+          filter={filter}
+        />
+        </Stack>
 
         <Scrollbar>
           <TableContainer sx={{ overflow: 'unset' }}>
