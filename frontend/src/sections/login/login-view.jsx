@@ -26,6 +26,7 @@ import Iconify from '../../components/iconify';
 
 export default function LoginView() {
   const theme = useTheme();
+  const router = useRouter()
   const toast = useToast()
   const user = useSelector((state) => state.authentication.user);
   const [showPassword, setShowPassword] = useState(false);
