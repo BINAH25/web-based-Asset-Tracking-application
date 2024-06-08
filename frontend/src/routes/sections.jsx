@@ -13,6 +13,8 @@ export const ProductsPage = lazy(() => import('../pages/products'));
 export const Page404 = lazy(() => import('../pages/page-not-found'));
 export const Page401 = lazy(() => import('../pages/401'));
 import ProtectedRoute from '../components/protectedRoute/ProtectedRoute';
+import LoadingPage from '../pages/loading';
+import Permissions from '../utils/permissions';
 // ----------------------------------------------------------------------
 
 export default function Router() {
@@ -20,7 +22,7 @@ export default function Router() {
     {
       element: (
         <DashboardLayout>
-          <Suspense>
+          <Suspense fallback={<LoadingPage />}>
             <Outlet />
           </Suspense>
         </DashboardLayout>
@@ -28,7 +30,14 @@ export default function Router() {
       children: [
         { path:"dashboard", element: <IndexPage /> },
         { path:"asset", element: <AssetPage /> },
-        { path: 'institution', element: <InstititionPage /> },
+        { 
+          path: 'institution', 
+          element: (
+            <ProtectedRoute permissions={[Permissions.VIEW_INSTITUTION]}>
+              <InstititionPage />
+            </ProtectedRoute>
+          ) 
+        },
         { path: 'tag', element: <TagPage /> },
         { path: 'user', element: <UserPage /> },
         { path: 'products', element: <ProductsPage /> },
