@@ -12,7 +12,7 @@ export const TagPage = lazy(() => import('../pages/tag'));
 export const ProductsPage = lazy(() => import('../pages/products'));
 export const Page404 = lazy(() => import('../pages/page-not-found'));
 export const Page401 = lazy(() => import('../pages/401'));
-
+import ProtectedRoute from '../components/protectedRoute/ProtectedRoute';
 // ----------------------------------------------------------------------
 
 export default function Router() {
