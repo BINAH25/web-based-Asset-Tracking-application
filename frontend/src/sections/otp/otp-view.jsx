@@ -33,8 +33,8 @@ export default function OtpView() {
   const dispatch = useDispatch();
 
   const handleLogin = async (event) => {
-    event.preventDefault()
-    if (!otp ) {
+    event.preventDefault();
+    if (!otp) {
       toast({
         position: 'top-center',
         title: 'Missing Field',
@@ -45,37 +45,40 @@ export default function OtpView() {
       });
       return; // Stop the function from proceeding
     }
-    const body = { otp: otp}
+    const body = { otp: otp };
     try {
-      const response = await verifyUser(body).unwrap()
+      const response = await verifyUser(body).unwrap();
       if (response['error_message'] != null) {
         toast({
-            position: 'top-center',
-            title: `An error occurred`,
-            description: response['error_message'],
-            status: 'error',
-            duration: 5000,
-            isClosable: true,
-        })
-    } else {
-        localStorage.setItem('token', response['token'])
-        localStorage.setItem('refresh', response['refresh'])
-        localStorage.setItem('user', JSON.stringify(response['user']))
-        localStorage.setItem('user_permissions', JSON.stringify(response['user_permissions']))
-
+          position: 'top-center',
+          title: `An error occurred`,
+          description: response['error_message'],
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+      } else {
         toast({
-            position: 'top-center',
-            title: 'Login successful',
-            description: 'You have successfully logged in',
-            status: 'success',
-            duration: 2000,
-            isClosable: true,
-        })
+          position: 'top-center',
+          title: 'Login successful',
+          description: 'You have successfully logged in',
+          status: 'success',
+          duration: 2000,
+          isClosable: true,
+        });
+        localStorage.setItem('token', response['token']);
+  
+        localStorage.setItem('refresh', response['refresh']);
+  
+        localStorage.setItem('user', JSON.stringify(response['user']));
+  
+        localStorage.setItem('user_permissions', JSON.stringify(response['user_permissions']));
+  
         dispatch(setStoreUser(response['user']));
-        dispatch(setToken(setToken['token']));
-        dispatch(setUserPermissions(response['user_permissions']))
-        setUser(response['user'])
-    }
+        dispatch(setToken(response['token'])); // Corrected dispatch
+        dispatch(setUserPermissions(response['user_permissions']));
+        setUser(response['user']);
+      }
     } catch (err) {
       toast({
         position: 'top-center',
@@ -84,9 +87,10 @@ export default function OtpView() {
         status: 'error',
         duration: 2000,
         isClosable: true,
-    })
+      });
     }
   };
+  
 
   const renderForm = (
     <>
@@ -119,7 +123,7 @@ export default function OtpView() {
   return (
     <>
     {user && (
-      <Navigate to="/dashboard" replace={true} />
+      <Navigate to="/asset" replace={true} />
     )}
       <Box
         sx={{

@@ -25,10 +25,8 @@ class SetupPerm(models.Model):
             ("edit_tag", "Can edit tag"),
             ("delete_tag", "Can delete tag"),
             # product
-            ("view_product", "Can view product"),
-            ("add_product", "Can add product"),
-            ("edit_product", "Can edit product"),
-            ("delete_product", "Can delete product"),
+            ("manage_product", "Can manage products"),
+            ("view_dashboard", "Can view dashboard"),
             # asset
             ("view_all_assets", "Can view asset"),
             ("add_asset", "Can add asset"),

@@ -28,7 +28,14 @@ export default function Router() {
         </DashboardLayout>
       ),
       children: [
-        { path:"dashboard", element: <IndexPage /> },
+        { 
+          path: 'dashboard', 
+          element: (
+            <ProtectedRoute permissions={[Permissions.VIEW_DASHBOARD]}>
+              <IndexPage />
+            </ProtectedRoute>
+          ) 
+        },
         { path:"asset", element: <AssetPage /> },
         { 
           path: 'institution', 
@@ -38,9 +45,30 @@ export default function Router() {
             </ProtectedRoute>
           ) 
         },
-        { path: 'tag', element: <TagPage /> },
-        { path: 'user', element: <UserPage /> },
-        { path: 'products', element: <ProductsPage /> },
+        { 
+          path: 'tag', 
+          element: (
+            <ProtectedRoute permissions={[Permissions.ADD_TAG]}>
+              <TagPage />
+            </ProtectedRoute>
+          ) 
+        },
+        { 
+          path: 'user', 
+          element: (
+            <ProtectedRoute permissions={[Permissions.ADD_USER]}>
+              <UserPage />
+            </ProtectedRoute>
+          ) 
+        },
+        { 
+          path: 'products', 
+          element: (
+            <ProtectedRoute permissions={[Permissions.MANAGE_PRODUCT]}>
+              <ProductsPage />
+            </ProtectedRoute>
+          ) 
+        },
       ],
     },
     {
@@ -57,7 +85,7 @@ export default function Router() {
     },
     {
       path: '401',
-      element: <Page401 />,
+      element: <Page401  replace={false}/>,
     },
     {
       path: '*',

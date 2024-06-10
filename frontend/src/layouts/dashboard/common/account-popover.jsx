@@ -34,11 +34,22 @@ export default function AccountPopover() {
 
   const token = localStorage.getItem('token')
 
+  window.addEventListener('storage', (event) => {
+    console.log('Storage changed:', event);
+  });
+  console.log('Token set:', localStorage.getItem('token'));
+
+  console.log('Refresh set:', localStorage.getItem('refresh'));
+
+  console.log('User set:', localStorage.getItem('user'));
+
+  console.log('Permissions set:', localStorage.getItem('user_permissions'));
+
   const handleClose = () => {
     setOpen(null);
   };
 
-  // log out the user when the token expired
+//   // log out the user when the token expired
   function checkTokenExpiration() {
     if (!token) {
       dispatch(logOutLocally())
@@ -76,8 +87,6 @@ export default function AccountPopover() {
 
 }
 
-// Call this function periodically to check the token expiration
-setInterval(checkTokenExpiration, 60000); // Check every 1 minute
 
   async function logoutUser() {
     const body = { refresh: refresh}
@@ -121,9 +130,7 @@ setInterval(checkTokenExpiration, 60000); // Check every 1 minute
   // Logout error
   useEffect(() => {
     if (Boolean(error) && !isLoading) {
-      toast.close("logout")
       toast({
-        id: "logout",
         position: 'top-center',
         title: `An error occurred`,
         description: `${error?.originalStatus}: ${error?.status}`,

@@ -134,7 +134,7 @@ export default function LoginView() {
   return (
     <>
     {user && (
-      <Navigate to="/dashboard" replace={true} />
+      <Navigate to="/asset" replace={true} />
     )}
       <Box
         sx={{

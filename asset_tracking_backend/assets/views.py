@@ -53,7 +53,7 @@ class TagsAPI(SimpleCrudMixin):
 class AddProductAPI(SimpleCrudMixin):
     """ check for require permission for adding a product """
     permission_classes = [permissions.IsAuthenticated,APILevelPermissionCheck]
-    required_permissions = [ "setup.add_product"]
+    required_permissions = [ "setup.manage_product"]
 
     serializer_class = GettAllProductSerializer
     form_class = ProductForm
@@ -74,7 +74,7 @@ class AddProductAPI(SimpleCrudMixin):
   
 class GetAvailableProductsAPI(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated, APILevelPermissionCheck]
-    required_permissions = [ "setup.view_product"]
+    required_permissions = [ "setup.manage_product"]
 
     serializer_class = GettAllProductSerializer
     def get(self, request,*args, **kwargs):
@@ -88,7 +88,7 @@ class GetAvailableProductsAPI(generics.GenericAPIView):
         
 class ProductsAPI(SimpleCrudMixin):
     permission_classes = [permissions.IsAuthenticated, APILevelPermissionCheck]
-    required_permissions = [ "setup.view_product", "setup.delete_product"]
+    required_permissions = [ "setup.manage_product"]
 
     serializer_class = GettAllProductSerializer
     model_class = Product
