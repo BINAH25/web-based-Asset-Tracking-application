@@ -21,7 +21,7 @@ export const resourceApiSlice = createApi({
             changeOwnPassword: builder.mutation({
                 query(body) {
                     return {
-                        url: `/auth/change-own-password/`,
+                        url: `/api/auth/change-own-password/`,
                         method: 'POST',
                         body,
                     }
@@ -208,7 +208,7 @@ export const {
     useRegisterUserMutation,
     useDeleteUsersMutation,
     useLogOutUserMutation,
-
+    useChangeOwnPasswordMutation,
     // Institutions
     useLazyGetAllInstitutionsQuery,
     useLazyGetAllNewInstitutionsQuery,

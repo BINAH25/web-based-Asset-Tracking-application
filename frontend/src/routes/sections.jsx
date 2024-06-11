@@ -17,6 +17,7 @@ export const ProductsPage = lazy(() => import('../pages/products'));
 export const Page404 = lazy(() => import('../pages/page-not-found'));
 export const Page401 = lazy(() => import('../pages/401'));
 export const UserAssetPage = lazy(() => import('../pages/userAsset'));
+export const ChangePasswordPage = lazy(() => import('../pages/changePassword'));
 
 export default function Router() {
   const routes = useRoutes([
@@ -42,6 +43,14 @@ export default function Router() {
           element: (
             <ProtectedRoute>
               <AssetPage />
+            </ProtectedRoute>
+          ) 
+        },
+        { 
+          path: '/password-reset/', 
+          element: (
+            <ProtectedRoute>
+              <ChangePasswordPage />
             </ProtectedRoute>
           ) 
         },

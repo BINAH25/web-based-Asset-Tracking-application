@@ -45,7 +45,8 @@ class UserLoginSerializer(serializers.ModelSerializer):
             'is_superuser',
             'is_staff',
             'created_by',
-            'institution'
+            'institution',
+            'changed_password'
         ]
         
 class OTPVerifySerializer(serializers.Serializer):

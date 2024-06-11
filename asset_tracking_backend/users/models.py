@@ -22,7 +22,7 @@ class Institution(models.Model):
     status = models.CharField(max_length=100, blank=True, null=True, default="New")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     def __str__(self):
         return str(self.institution_name) + " " + str(self.id)
     
@@ -32,5 +32,6 @@ class User(AbstractUser):
         "User", related_name="created_users", on_delete=models.SET_NULL, null=True, blank=True)
     otp = models.CharField(max_length=6, null=True, blank=True)
     otp_expiration = models.DateTimeField(null=True, blank=True)
+    changed_password = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

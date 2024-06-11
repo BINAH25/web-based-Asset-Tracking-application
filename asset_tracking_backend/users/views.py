@@ -206,3 +206,27 @@ class LogOutAPI(generics.GenericAPIView):
             return Response({"status": "success","success_message": "Successfully logged out."}, status=200)
         except Exception as e:
             return Response({"status": "error","error_message": f"Error logging out. {e}"}, status=200)
+
+
+class ChangeOwnPassword(generics.GenericAPIView):
+    """
+    Change password of personal user accounts.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        old_password = request.data.get("old_password")
+        new_password = request.data.get("new_password")
+
+        user = request.user
+        if old_password and new_password and user and user.check_password(old_password):
+            user.set_password(new_password)
+            user.changed_password = True
+            user.save()
+            user_data = get_auth_for_user(user)
+            return Response(user_data, status=status.HTTP_200_OK)
+        elif user:
+            return Response({"status": "error", "error_message": "Invalid old password."})
+        else:
+            return Response({"status": "error", "error_message": "Invalid session. Please logout and login again"})
+

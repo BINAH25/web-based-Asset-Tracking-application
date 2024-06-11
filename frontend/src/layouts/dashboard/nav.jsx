@@ -10,6 +10,7 @@ import { alpha } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import ListItemButton from '@mui/material/ListItemButton';
 import { useDispatch, useSelector } from 'react-redux';
+import { Navigate } from "react-router-dom";
 
 import { usePathname } from '../../routes/hooks';
 import { RouterLink } from '../../routes/components';
@@ -56,6 +57,9 @@ export default function Nav({ openNav, onCloseNav }) {
       <Avatar src={account.photoURL} alt="photoURL" />
 
       <Box sx={{ ml: 2 }}>
+        {user?.username && !user.changed_password && (
+              <Navigate to="/password-reset/" replace={true} />
+        )}
         <Typography variant="subtitle2">{user?.username}</Typography>
       </Box>
     </Box>
