@@ -15,6 +15,7 @@ import Box from '@mui/material/Box';
 import { useLazyGetAllAssetsQuery,
     usePutAssetMutation,
     useLazyGetAllAvailableProductsQuery,
+    useDeleteAssetMutation,
     useLazyGetUsersQuery } from '../../../features/resources/resources-api-slice';
 import { useToast } from '@chakra-ui/react'
 import Iconify from '../../../components/iconify';
@@ -82,6 +83,8 @@ export default function AssetPage() {
     const [editOpen, setEditOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const userPermissions = useSelector((state) => new Set(state.authentication.userPermissions));
+    const [deleteOpen, setDeleteOpen] = useState(false);
+    const [deleteAsset,  { isLoading: loadingAsset, error: assetError }] = useDeleteAssetMutation()
 
     const handleEditOpen = (item) => {
         setSelectedItem(item);
@@ -92,6 +95,16 @@ export default function AssetPage() {
         setEditOpen(false);
         setSelectedItem(null);
     };
+
+    const handleDeleteOpen = (item) => {
+      setSelectedItem(item);
+      setDeleteOpen(true);
+    };
+      
+    const handleDeleteClose = () => {
+      setDeleteOpen(false);
+      setSelectedItem(null);
+    }
 
     useEffect(() => {
         getAssets();
@@ -185,9 +198,66 @@ export default function AssetPage() {
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-  
 
-  const handleAddProdduct = async (event) => {
+  // delete Asset
+  const handledeleteAsset = async (event) => {
+    event.preventDefault()
+    const body = { 
+      id: selectedItem?.id
+    }
+    try {
+      const response = await deleteAsset(body).unwrap()
+
+      if (response['error_message'] != null) {
+        toast({
+            position: 'top-center',
+            title: `An error occurred`,
+            description: response["error_message"],
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+        })
+    } else {
+      toast({
+        position: 'top-center',
+        title: 'OTP Sent',
+        description: response["success_message"],
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+    })
+      assets((prevAssets) => prevAssets.filter((asset) => asset.id !== selectedItem.id));
+      handleDeleteClose()
+    }
+    } catch (err) {
+      toast({
+        position: 'top-center',
+        title: `An error occurred`,
+        description: err.originalStatus,
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+    })
+    }
+
+  }
+
+  useEffect(() => {
+    if (assetError) {
+      toast({
+          position: 'top-center',
+          title: `An error occurred: ${assetError.originalStatus}`,
+          description: assetError.status,
+          status: 'error',
+          duration: 2000,
+          isClosable: true,
+      })
+    }
+  }, [assetError, toast])
+
+  
+  // ADD ASSET 
+  const handleAddAsset = async (event) => {
     event.preventDefault()
     if (!product || !user ) {
       toast({
@@ -285,6 +355,58 @@ export default function AssetPage() {
     const handleFilterChange = (event) => {
       setFilter(event.target.value);
     };
+
+    // delete asset
+  const renderDeleteForm = (
+    <Box  sx={{ my: 2 }}>
+      <Grid container spacing={2}>
+        <Grid item xs={6} >
+          <Typography variant="subtitle1">Product Name:</Typography>
+          <Typography variant="body1" >{selectedItem?.product?.product_name || 'N/A'}</Typography>
+        </Grid>
+        <Grid item xs={6} >
+              <Typography variant="subtitle1">Product Serial Number:</Typography>
+              <Typography variant="body1">{selectedItem?.product?.serial_number || 'N/A'}</Typography>
+            </Grid>
+        <Grid item xs={6} >
+          <Typography variant="subtitle1">Product Tag ID:</Typography>
+          <Typography variant="body1" >{selectedItem?.product?.tag?.tag_id || 'N/A'}</Typography>
+        </Grid>
+        <Grid item xs={6} >
+          <Typography variant="subtitle1">Tag Name:</Typography>
+          <Typography variant="body1" >{selectedItem?.product?.tag?.tag_name  || 'N/A'}</Typography>
+        </Grid>
+      </Grid>
+    
+      <Button
+        fullWidth
+        size="large"
+        type="submit"
+        variant="contained"
+        color="error"
+        onClick={handledeleteAsset}
+        disabled={loadingAsset}
+        sx={{ my: 2 }}
+      >
+        {loadingAsset && <CircularProgress size={30}/>}
+        Delete Asset
+      </Button>
+
+      <Button
+        fullWidth
+        size="large"
+        type="button"
+        variant="contained"
+        color="inherit"
+        onClick={handleDeleteClose}
+        sx={{ my: 2 }}
+      >
+        Cancel
+      </Button>
+    </Box>
+  );
+
+    // detail form
     const renderEditForm = (
         <Box sx={{ my: 2 }}>
           <Grid container spacing={2}>
@@ -408,7 +530,7 @@ export default function AssetPage() {
       variant="contained" 
       color="inherit"
       disabled={isLoading}
-      onClick={handleAddProdduct}
+      onClick={handleAddAsset}
       >
         {isLoading && <CircularProgress size={30}/>}
         Submit
@@ -498,6 +620,7 @@ export default function AssetPage() {
                       selected={selected.indexOf(row.serial_number) !== -1}
                       handleClick={(event) => handleClick(event, row.serial_number)}
                       onEditClick={() => handleEditOpen(row)} 
+                      onDeleteClick={() => handleDeleteOpen(row)} 
                     />
                   ))}
 
@@ -535,6 +658,22 @@ export default function AssetPage() {
           </Typography>
         </Stack>
         {renderEditForm}
+      </Box>
+    </Modal>
+    {/* DELETE ASSET MODAL  */}
+    <Modal
+      open={deleteOpen}
+      onClose={handleDeleteClose}
+      aria-labelledby="modal-modal-title"
+      aria-describedby="modal-modal-description"
+    >
+      <Box  sx={style}>
+        <Stack >
+          <Typography variant="h4" sx={{ my: 1, textAlign: 'center' }}>
+            Are you sure you  want to delete this asset?
+          </Typography>
+        </Stack>
+        {renderDeleteForm}
       </Box>
     </Modal>
     </Container>

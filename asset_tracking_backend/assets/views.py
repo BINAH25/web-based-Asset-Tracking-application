@@ -138,3 +138,9 @@ class GetAllAsssetsAPI(generics.GenericAPIView):
             status=200
         )   
         
+class DeleteAssetAPI(SimpleCrudMixin):
+    permission_classes = [permissions.IsAuthenticated, APILevelPermissionCheck]
+    required_permissions = [ "setup.delete_asset"]
+
+    serializer_class = GetAllAssetSerializer
+    model_class = Asset

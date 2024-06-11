@@ -9,6 +9,8 @@ import MenuItem from '@mui/material/MenuItem';
 import TableCell from '@mui/material/TableCell';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
+import Permissions from '../../utils/permissions';
+import { useSelector } from 'react-redux';
 
 import Iconify from '../../components/iconify';
 
@@ -24,6 +26,7 @@ export default function AssetTableRow({
   created_by,
   handleClick,
   onEditClick,
+  onDeleteClick,
 }) {
   const [open, setOpen] = useState(null);
 
@@ -35,7 +38,8 @@ export default function AssetTableRow({
     setOpen(null);
   };
 
-  
+  const userPermissions = useSelector((state) => new Set(state.authentication.userPermissions));
+
 
   return (
     <>
@@ -79,11 +83,13 @@ export default function AssetTableRow({
           <Iconify icon="eva:more-vertical-fill" sx={{ mr: 2 }} />
           More
         </MenuItem>
-
-        <MenuItem  sx={{ color: 'error.main' }}>
-          <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
-          Delete
-        </MenuItem>
+        {userPermissions.has(Permissions.ADD_ASSET)?
+          <MenuItem onClick={() => onDeleteClick()}  sx={{ color: 'error.main' }}>
+            <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
+            Delete
+          </MenuItem>
+          :""
+        }
       </Popover>
     </>
   );
@@ -99,4 +105,5 @@ AssetTableRow.propTypes = {
     selected: PropTypes.any,
     created_by: PropTypes.any,
     onEditClick:PropTypes.func,
+    onDeleteClick:PropTypes.func,
 };
