@@ -10,14 +10,10 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 import Modal from '@mui/material/Modal';
-import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
-import { useLazyGetAllAssetsQuery,
-    usePutAssetMutation,
-    useLazyGetAllAvailableProductsQuery,
-    useDeleteAssetMutation,
-    usePutAssetStatusMutation,
-    useLazyGetUsersQuery } from '../../../features/resources/resources-api-slice';
+import {
+  useLazyGetAllUserAssetsQuery,
+  useDeleteAssetMutation } from '../../../features/resources/resources-api-slice';
 import { useToast } from '@chakra-ui/react'
 import Iconify from '../../../components/iconify';
 import Scrollbar from '../../../components/scrollbar';
@@ -28,15 +24,10 @@ import UserTableHead from '../../user/user-table-head';
 import AssetTableToolbar from '../../asset/asset-table-toolbar';
 import AssetTableRow from '../../asset/asset-table-row';
 import { emptyRows, applyFilter, getComparator } from '../../asset/utils';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
 import Grid from '@mui/material/Grid';
 import Sort from '../../asset/sort';
 import { fDate } from '../../../utils/format-time'
-import Permissions from '../../../utils/permissions';
-import { useDispatch, useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
 
 // ----------------------------------------------------------------------
 const style = {
@@ -61,39 +52,29 @@ const style2 = {
   };
 export default function AssetPage() {
     const toast = useToast()
-
+    const { id } = useParams();
     const [page, setPage] = useState(0);
     const [order, setOrder] = useState('asc');
     const [selected, setSelected] = useState([]);
     const [orderBy, setOrderBy] = useState('name');
     const [filterName, setFilterName] = useState('');
     const [rowsPerPage, setRowsPerPage] = useState(5);
-    const [open, setOpen] = useState(false);
-    const [getAvailableProducts, { data: res = [],error: errorGettingTags }] = useLazyGetAllAvailableProductsQuery()
-    const [availableProducts, setAvailableProducts] = useState([])
-    const [product, setProduct] = useState('');
-    const [getusers, { data: user_response = [] }] = useLazyGetUsersQuery()
-    const [users, SetUsers] = useState([])
-    const [user, SetUser] = useState('')
 
     const [filter, setFilter] = useState('')
-    const [getAssets, { data: response = [],error: errorGettingAssets }] = useLazyGetAllAssetsQuery()
-    const [addAsset,  { isLoading, error }] = usePutAssetMutation()
-    const [changeAssetStatus,  { isLoading:statusChangeLoading, error:statusChangeError }] = usePutAssetStatusMutation()
+    const [getAssets, { data: response = [],error: errorGettingAssets }] = useLazyGetAllUserAssetsQuery()
     const [assets, setAssets] = useState([])
 
     const [editOpen, setEditOpen] = useState(false);
-    const [changeAssetStatusOpen, setChangeAssetStatusOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
-    const userPermissions = useSelector((state) => new Set(state.authentication.userPermissions));
     const [deleteOpen, setDeleteOpen] = useState(false);
     const [deleteAsset,  { isLoading: loadingAsset, error: assetError }] = useDeleteAssetMutation()
-    const [assetStatusChange, setAssetStatusChange] = useState('');
     
     const handleEditOpen = (item) => {
         setSelectedItem(item);
         setEditOpen(true);
     };
+
+    console.log(id)
       
     const handleEditClose = () => {
         setEditOpen(false);
@@ -109,47 +90,17 @@ export default function AssetPage() {
       setDeleteOpen(false);
       setSelectedItem(null);
     }
-    // change assets status
-    const handleChangeStatusOpen = (item) => {
-      setSelectedItem(item);
-      setChangeAssetStatusOpen(true);
-    };
-      
-    const handleChangeStatusClose = () => {
-      setChangeAssetStatusOpen(false);
-      setSelectedItem(null);
-    }
+   
 
     useEffect(() => {
-        getAssets();
-    }, [getAssets]);
+        getAssets({id});
+    }, []);
 
     useEffect(() => {
         if (response && Array.isArray(response.success_message)) {
             setAssets(response.success_message);
         }
     }, [response]);
-
-
-    useEffect(() => {
-        getAvailableProducts();
-    },  [getAvailableProducts]);
-
-    useEffect(() => {
-        if (res && Array.isArray(res.success_message)) {
-            setAvailableProducts(res.success_message);
-        }
-    }, [res]);
-
-    useEffect(() => {
-        getusers();
-    }, [getusers]);
-
-    useEffect(() => {
-        if (user_response && Array.isArray(user_response.success_message)) {
-          SetUsers(user_response.success_message);
-        }
-    }, [user_response]);
       
 
 
@@ -210,9 +161,6 @@ export default function AssetPage() {
 
   const notFound = !dataFiltered.length && !!filterName;
 
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
   // delete Asset
   const handledeleteAsset = async (event) => {
     event.preventDefault()
@@ -270,67 +218,7 @@ export default function AssetPage() {
   }, [assetError, toast])
 
   
-  // ADD ASSET 
-  const handleAddAsset = async (event) => {
-    event.preventDefault()
-    if (!product || !user ) {
-      toast({
-        position: 'top-center',
-        title: 'Missing Fields',
-        description: 'All fields are required',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
-      return; 
-    }
-    const body = { 
-        product: product,
-        owner: user
-    }
-
-    try {
-        const response = await addAsset(body).unwrap()
-
-        if (response['error_message'] != null) {
-          toast({
-              position: 'top-center',
-              title: `An error occurred`,
-              description: response["error_message"],
-              status: 'error',
-              duration: 5000,
-              isClosable: true,
-          })
-      } else {
-        toast({
-          position: 'top-center',
-          title: 'OTP Sent',
-          description: "Asset Issued successfully",
-          status: 'success',
-          duration: 5000,
-          isClosable: true,
-      })
-        setAssets((prevassets) => [response, ...prevassets]);
-        // Remove the used product from the list
-        setAvailableProducts((prevProducts) => 
-            prevProducts.filter(prod => prod.id !== product)
-          );
-        SetUser('')
-        setProduct('')
-        handleClose()
-      }
-      } catch (err) {
-        toast({
-          position: 'top-center',
-          title: `An error occurred`,
-          description: err.originalStatus,
-          status: 'error',
-          duration: 2000,
-          isClosable: true,
-      })
-      }
-
-  }
+  
 
   useEffect(() => {
     if (errorGettingAssets) {
@@ -343,125 +231,15 @@ export default function AssetPage() {
             isClosable: true,
         })
     }
-    }, [errorGettingAssets, toast])
+  }, [errorGettingAssets, toast])
 
-  useEffect(() => {
-    if (error) {
-        toast({
-            position: 'top-center',
-            title: `An error occurred: ${error.originalStatus}`,
-            description: error.status,
-            status: 'error',
-            duration: 2000,
-            isClosable: true,
-        })
-    }
-    }, [error, toast])
 
-    const handleProductChange = (event) => {
-        setProduct(event.target.value);
-    };
-
-    const handleUserChange = (event) => {
-        SetUser(event.target.value);
-    };
     // filter by status
     const handleFilterChange = (event) => {
       setFilter(event.target.value);
     };
 
 
-    // HANDLE ASSET STATUS CHANGE
-    const handleAssetStatusChange = (event) => {
-      setAssetStatusChange(event.target.value);
-    };
-
-    const handleChangeAssetStatus = async (event) => {
-      event.preventDefault()
-      if (!assetStatusChange ) {
-        toast({
-          position: 'top-center',
-          title: 'Missing Fields',
-          description: 'All fields are required',
-          status: 'error',
-          duration: 5000,
-          isClosable: true,
-        });
-        return; 
-      }
-      const body = { 
-          status: assetStatusChange,
-          asset_id: selectedItem?.id
-      }
-      try {
-          const response = await changeAssetStatus(body).unwrap()
-          if (response['error_message'] != null) {
-            toast({
-                position: 'top-center',
-                title: `An error occurred`,
-                description: response["error_message"],
-                status: 'error',
-                duration: 5000,
-                isClosable: true,
-            })
-        } else {
-          toast({
-            position: 'top-center',
-            title: 'OTP Sent',
-            description: response["success_message"],
-            status: 'success',
-            duration: 5000,
-            isClosable: true,
-        })
-          // Update the asset status in the local state
-          const updatedAssets = assets.map((asset) =>
-            asset.id === selectedItem.id ? { ...asset, status: assetStatusChange } : asset
-          );
-          setAssets(updatedAssets);
-          handleChangeStatusClose()
-        }
-        } catch (err) {
-          toast({
-            position: 'top-center',
-            title: `An error occurred`,
-            description: err.originalStatus,
-            status: 'error',
-            duration: 2000,
-            isClosable: true,
-        })
-        }
-  
-    }
-    const changeStatusForm = (
-      <Stack spacing={3} sx={{ my: 2 }}>
-        <FormControl fullWidth required>
-          <InputLabel id="status-label">Select Status</InputLabel>
-          <Select
-            labelId="status-label"
-            id="status"
-            value={assetStatusChange}
-            label="status"
-            onChange={handleAssetStatusChange}
-          >
-            <MenuItem value="Functional"> Functional </MenuItem>
-            <MenuItem value="Maintenance"> In Maintenance </MenuItem>
-            <MenuItem value="Spoilt"> Spoilt </MenuItem>
-          </Select>
-        </FormControl>
-        <Button 
-          fullWidth size="large" 
-          type="submit" 
-          variant="contained" 
-          color="inherit"
-          disabled={statusChangeLoading}
-          onClick={handleChangeAssetStatus}
-          >
-            {statusChangeLoading && <CircularProgress size={30}/>}
-            Submit
-        </Button>
-      </Stack>
-
-    );
     // delete asset
     const renderDeleteForm = (
       <Box  sx={{ my: 2 }}>
@@ -588,90 +366,9 @@ export default function AssetPage() {
     );
       
 //
-  const renderForm = (
-    <>
-      <Stack spacing={3} sx={{ my: 2 }}>
-        <FormControl fullWidth required>
-          <InputLabel id="product-label"> Select Product </InputLabel>
-          <Select
-            labelId="product-label"
-            id="Product"
-            label="Product"
-            value={product}
-            onChange={handleProductChange}
-
-          >
-           {availableProducts.map((product) => (
-          <MenuItem key={product.id} value={product.id}>
-            {`${product.product_name} (${product.serial_number})`}
-          </MenuItem>
-        ))}
-          </Select>
-        </FormControl>
-
-        <FormControl fullWidth required>
-          <InputLabel id="user-label"> Select User </InputLabel>
-          <Select
-            labelId="user-label"
-            id="user"
-            label="user"
-            value={user}
-            onChange={handleUserChange}
-
-          >
-           {users.map((user) => (
-          <MenuItem key={user.id} value={user.id}>
-            {`${user.institution?.institution_name} (${user.username})`}
-          </MenuItem>
-        ))}
-          </Select>
-        </FormControl>
-
-
-      </Stack>
-
-      <Button 
-      fullWidth size="large" 
-      type="submit" 
-      variant="contained" 
-      color="inherit"
-      disabled={isLoading}
-      onClick={handleAddAsset}
-      >
-        {isLoading && <CircularProgress size={30}/>}
-        Submit
-      </Button>
-    </>
-  );
-
+  
   return (
     <Container>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Assets</Typography>
-        {userPermissions.has(Permissions.ADD_ASSET)?
-          <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleOpen}>
-            Issue Asset
-          </Button>
-          :""
-        }
-        <Modal
-          open={open}
-          onClose={handleClose}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
-          <Box sx={style}
-          > 
-            <Stack alignItems="center">
-            <Typography variant="h4" sx={{ my: 1 }}>
-                Give Out Asset Form
-            </Typography>
-            </Stack>
-            {renderForm}
-          </Box>
-        </Modal>
-      </Stack>
-
       <Card>
         <Stack  direction="row" alignItems="center" justifyContent="space-between">
         <AssetTableToolbar
@@ -727,7 +424,6 @@ export default function AssetPage() {
                       handleClick={(event) => handleClick(event, row.serial_number)}
                       onEditClick={() => handleEditOpen(row)} 
                       onDeleteClick={() => handleDeleteOpen(row)} 
-                      onStatusChangeClick={() => handleChangeStatusOpen(row)} 
                     />
                   ))}
 
@@ -783,22 +479,7 @@ export default function AssetPage() {
         {renderDeleteForm}
       </Box>
     </Modal>
-    {/* CHANGE ASSET STATUS MODAL  */}
-    <Modal
-      open={changeAssetStatusOpen}
-      onClose={handleChangeStatusClose}
-      aria-labelledby="modal-modal-title"
-      aria-describedby="modal-modal-description"
-    >
-      <Box  sx={style}>
-        <Stack >
-          <Typography variant="h4" sx={{ my: 1, textAlign: 'center' }}>
-            Change Your Asset Status
-          </Typography>
-        </Stack>
-        {changeStatusForm}
-      </Box>
-    </Modal>
+   
     </Container>
   );
 }

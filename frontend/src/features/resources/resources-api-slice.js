@@ -177,6 +177,11 @@ export const resourceApiSlice = createApi({
                     return `/api/assets/get/all/assets/`;
                 },
             }),
+            getAllUserAssets: builder.query({
+                query({ id }) {
+                    return `/api/assets/user/${id}/`;
+                },
+            }),
             deleteAsset: builder.mutation({
                 query(body) {
                     return {
@@ -224,7 +229,7 @@ export const {
     usePutAssetMutation,
     useDeleteAssetMutation,
     usePutAssetStatusMutation,
-   
+    useLazyGetAllUserAssetsQuery,
     
 } = resourceApiSlice;
 

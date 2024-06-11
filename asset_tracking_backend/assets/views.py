@@ -180,9 +180,9 @@ class getUsersAssetAPI(generics.GenericAPIView):
     required_permissions = [ "setup.add_asset"]
 
     serializer_class = GetAllAssetSerializer
-    def get(self, request, pk, *args, **kwargs):
+    def get(self, request, id, *args, **kwargs):
         try:
-            user = User.objects.get(id=pk)
+            user = User.objects.get(id=id)
             assets = Asset.objects.filter(owner=user).all().order_by('-created_at')
             serializers = self.serializer_class(assets,many=True)
             return Response(
