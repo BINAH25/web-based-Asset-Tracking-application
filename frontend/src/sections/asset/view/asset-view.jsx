@@ -33,6 +33,9 @@ import MenuItem from '@mui/material/MenuItem';
 import Grid from '@mui/material/Grid';
 import Sort from '../sort';
 import { fDate } from '../../../utils/format-time'
+import Permissions from '../../../utils/permissions';
+import { useDispatch, useSelector } from 'react-redux';
+
 // ----------------------------------------------------------------------
 const style = {
     position: 'absolute',
@@ -78,6 +81,7 @@ export default function AssetPage() {
 
     const [editOpen, setEditOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
+    const userPermissions = useSelector((state) => new Set(state.authentication.userPermissions));
 
     const handleEditOpen = (item) => {
         setSelectedItem(item);
@@ -416,10 +420,12 @@ export default function AssetPage() {
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Assets</Typography>
-
-        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleOpen}>
-          Issue Asset
-        </Button>
+        {userPermissions.has(Permissions.ADD_ASSET)?
+          <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleOpen}>
+            Issue Asset
+          </Button>
+          :""
+        }
         <Modal
           open={open}
           onClose={handleClose}

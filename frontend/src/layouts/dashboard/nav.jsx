@@ -30,6 +30,7 @@ export default function Nav({ openNav, onCloseNav }) {
   const pathname = usePathname();
   const user = useSelector((state) => state.authentication.user);
   const upLg = useResponsive('up', 'lg');
+  const userPermissions = useSelector((state) => new Set(state.authentication.userPermissions));
 
 
   useEffect(() => {
@@ -63,7 +64,9 @@ export default function Nav({ openNav, onCloseNav }) {
   const renderMenu = (
     <Stack component="nav" spacing={0.5} sx={{ px: 2 }}>
       {navConfig.map((item) => (
-        <NavItem key={item.title} item={item} />
+        !item.permission || userPermissions.has(item.permission) ? ( 
+          <NavItem key={item.title} item={item} />
+        ) : null
       ))}
     </Stack>
   );

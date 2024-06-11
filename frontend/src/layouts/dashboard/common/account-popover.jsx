@@ -33,18 +33,7 @@ export default function AccountPopover() {
   const refresh = localStorage.getItem('refresh')
 
   const token = localStorage.getItem('token')
-
-  window.addEventListener('storage', (event) => {
-    console.log('Storage changed:', event);
-  });
-  console.log('Token set:', localStorage.getItem('token'));
-
-  console.log('Refresh set:', localStorage.getItem('refresh'));
-
-  console.log('User set:', localStorage.getItem('user'));
-
-  console.log('Permissions set:', localStorage.getItem('user_permissions'));
-
+  
   const handleClose = () => {
     setOpen(null);
   };

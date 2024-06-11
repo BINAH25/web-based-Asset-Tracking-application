@@ -17,6 +17,8 @@ import Searchbar from './common/searchbar';
 import { NAV, HEADER } from './config-layout';
 import AccountPopover from './common/account-popover';
 import NotificationsPopover from './common/notifications-popover';
+import { useDispatch, useSelector } from 'react-redux';
+import Permissions from '../../utils/permissions';
 
 // ----------------------------------------------------------------------
 
@@ -24,6 +26,7 @@ export default function Header({ onOpenNav }) {
   const theme = useTheme();
 
   const lgUp = useResponsive('up', 'lg');
+  const userPermissions = useSelector((state) => new Set(state.authentication.userPermissions));
 
   const renderContent = (
     <>
@@ -38,7 +41,11 @@ export default function Header({ onOpenNav }) {
       <Box sx={{ flexGrow: 1 }} />
 
       <Stack direction="row" alignItems="center" spacing={1}>
-        <NotificationsPopover />
+        {
+          userPermissions.has(Permissions.ADD_ASSET)?
+          <NotificationsPopover />
+          :""
+        }
         <AccountPopover />
       </Stack>
     </>

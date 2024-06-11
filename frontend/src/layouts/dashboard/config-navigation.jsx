@@ -1,5 +1,5 @@
 import SvgColor from '../../components/svg-color';
-
+import Permissions from '../../utils/permissions';
 // ----------------------------------------------------------------------
 
 const icon = (name) => (
@@ -11,6 +11,7 @@ const navConfig = [
     title: 'dashboard',
     path: '/dashboard',
     icon: icon('ic_analytics'),
+    permission:`${Permissions.VIEW_DASHBOARD}`
   },
   {
     title: 'asset',
@@ -21,21 +22,25 @@ const navConfig = [
     title: 'institution',
     path: '/institution',
     icon: icon('ic_user'),
+    permission:`${Permissions.VIEW_INSTITUTION}`
   },
   {
     title: 'user',
     path: '/user',
     icon: icon('ic_user'),
+    permission: `${Permissions.ADD_USER}`
   },
   {
     title: 'tag',
     path: '/tag',
     icon: icon('ic_blog'),
+    permission: `${Permissions.ADD_TAG}`
   },
   {
     title: 'product',
     path: '/products',
     icon: icon('ic_cart'),
+    permission: `${Permissions.MANAGE_PRODUCT}`
   },
   
 ];

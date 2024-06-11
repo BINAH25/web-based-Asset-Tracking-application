@@ -4,6 +4,7 @@ const Permissions = {
     VIEW_INSTITUTION: "view_institution",
     ADD_USER: "add_user",
     ADD_TAG: "add_tag",
+    ADD_ASSET: "add_asset",
     
 }
 
