@@ -16,6 +16,7 @@ import { useLazyGetAllAssetsQuery,
     usePutAssetMutation,
     useLazyGetAllAvailableProductsQuery,
     useDeleteAssetMutation,
+    usePutAssetStatusMutation,
     useLazyGetUsersQuery } from '../../../features/resources/resources-api-slice';
 import { useToast } from '@chakra-ui/react'
 import Iconify from '../../../components/iconify';
@@ -78,6 +79,7 @@ export default function AssetPage() {
     const [filter, setFilter] = useState('')
     const [getAssets, { data: response = [],error: errorGettingAssets }] = useLazyGetAllAssetsQuery()
     const [addAsset,  { isLoading, error }] = usePutAssetMutation()
+    const [changeAssetStatus,  { isLoading:statusChangeLoading, error:statusChangeError }] = usePutAssetStatusMutation()
     const [assets, setAssets] = useState([])
 
     const [editOpen, setEditOpen] = useState(false);
@@ -373,6 +375,63 @@ export default function AssetPage() {
     const handleAssetStatusChange = (event) => {
       setAssetStatusChange(event.target.value);
     };
+
+    const handleChangeAssetStatus = async (event) => {
+      event.preventDefault()
+      if (!assetStatusChange ) {
+        toast({
+          position: 'top-center',
+          title: 'Missing Fields',
+          description: 'All fields are required',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+        return; 
+      }
+      const body = { 
+          status: assetStatusChange,
+          asset_id: selectedItem?.id
+      }
+      try {
+          const response = await changeAssetStatus(body).unwrap()
+          if (response['error_message'] != null) {
+            toast({
+                position: 'top-center',
+                title: `An error occurred`,
+                description: response["error_message"],
+                status: 'error',
+                duration: 5000,
+                isClosable: true,
+            })
+        } else {
+          toast({
+            position: 'top-center',
+            title: 'OTP Sent',
+            description: response["success_message"],
+            status: 'success',
+            duration: 5000,
+            isClosable: true,
+        })
+          // Update the asset status in the local state
+          const updatedAssets = assets.map((asset) =>
+            asset.id === selectedItem.id ? { ...asset, status: assetStatusChange } : asset
+          );
+          setAssets(updatedAssets);
+          handleChangeStatusClose()
+        }
+        } catch (err) {
+          toast({
+            position: 'top-center',
+            title: `An error occurred`,
+            description: err.originalStatus,
+            status: 'error',
+            duration: 2000,
+            isClosable: true,
+        })
+        }
+  
+    }
     const changeStatusForm = (
       <Stack spacing={3} sx={{ my: 2 }}>
         <FormControl fullWidth required>
@@ -394,10 +453,10 @@ export default function AssetPage() {
           type="submit" 
           variant="contained" 
           color="inherit"
-          // disabled={isLoading}
-          // onClick={handleAddInstitution}
+          disabled={statusChangeLoading}
+          onClick={handleChangeAssetStatus}
           >
-            {/* {isLoading && <CircularProgress size={30}/>} */}
+            {statusChangeLoading && <CircularProgress size={30}/>}
             Submit
         </Button>
       </Stack>

@@ -85,11 +85,14 @@ export default function AssetTableRow({
           More
         </MenuItem>
 
-        <MenuItem onClick={() => onStatusChangeClick()}>
-          <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
-          Edit
-        </MenuItem>
-        
+        {
+          userPermissions.has(Permissions.ADD_ASSET)? "":
+          <MenuItem onClick={() => onStatusChangeClick()}>
+            <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
+            Edit
+          </MenuItem>
+        }
+
         {userPermissions.has(Permissions.ADD_ASSET)?
           <MenuItem onClick={() => onDeleteClick()}  sx={{ color: 'error.main' }}>
             <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />

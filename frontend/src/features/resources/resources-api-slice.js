@@ -163,6 +163,15 @@ export const resourceApiSlice = createApi({
                     }
                 },
             }),
+            putAssetStatus: builder.mutation({
+                query(body) {
+                    return {
+                        url: `/api/assets/update/status/`,
+                        method: 'POST',
+                        body,
+                    }
+                },
+            }),
             getAllAssets: builder.query({
                 query() {
                     return `/api/assets/get/all/assets/`;
@@ -214,6 +223,7 @@ export const {
     useLazyGetAllAssetsQuery,
     usePutAssetMutation,
     useDeleteAssetMutation,
+    usePutAssetStatusMutation,
    
     
 } = resourceApiSlice;
