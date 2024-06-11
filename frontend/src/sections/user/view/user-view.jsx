@@ -451,6 +451,7 @@ useEffect(() => {
                   .map((row) => (
                     <UserTableRow
                       key={row.id}
+                      userId={row.id}
                       username={row.username}
                       email={row.email}
                       institution={row.institution?.institution_name}

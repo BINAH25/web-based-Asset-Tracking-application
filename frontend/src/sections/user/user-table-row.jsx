@@ -9,7 +9,8 @@ import MenuItem from '@mui/material/MenuItem';
 import TableCell from '@mui/material/TableCell';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
-
+import { Navigate } from 'react-router-dom';
+import { useRouter } from '../../routes/hooks';
 import Iconify from '../../components/iconify';
 
 // ----------------------------------------------------------------------
@@ -17,6 +18,7 @@ import Iconify from '../../components/iconify';
 export default function UserTableRow({
   selected,
   username,
+  userId,
   email,
   institution,
   created_by,
@@ -24,6 +26,7 @@ export default function UserTableRow({
   onDeleteClick,
 }) {
   const [open, setOpen] = useState(null);
+  const router = useRouter()
 
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
@@ -31,6 +34,10 @@ export default function UserTableRow({
 
   const handleCloseMenu = () => {
     setOpen(null);
+  };
+
+  const handleNavigate = () => {
+    router.push(`/userAsset/${userId}/details`);
   };
 
   return (
@@ -73,9 +80,9 @@ export default function UserTableRow({
           sx: { width: 140 },
         }}
       >
-        <MenuItem onClick={handleCloseMenu}>
-          <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
-          Edit
+        <MenuItem  onClick={handleNavigate}>
+          <Iconify icon="eva:more-vertical-fill" sx={{ mr: 2 }} />
+          More
         </MenuItem>
 
         <MenuItem onClick={() => onDeleteClick()} sx={{ color: 'error.main' }}>
@@ -91,6 +98,7 @@ UserTableRow.propTypes = {
   selected: PropTypes.any,
   username: PropTypes.any,
   email: PropTypes.any,
+  userId: PropTypes.any.isRequired,
   institution: PropTypes.any,
   created_by: PropTypes.any,
   handleClick: PropTypes.func,

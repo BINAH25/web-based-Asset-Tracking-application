@@ -16,6 +16,7 @@ export const TagPage = lazy(() => import('../pages/tag'));
 export const ProductsPage = lazy(() => import('../pages/products'));
 export const Page404 = lazy(() => import('../pages/page-not-found'));
 export const Page401 = lazy(() => import('../pages/401'));
+export const UserAssetPage = lazy(() => import('../pages/userAsset'));
 
 export default function Router() {
   const routes = useRoutes([
@@ -41,6 +42,14 @@ export default function Router() {
           element: (
             <ProtectedRoute>
               <AssetPage />
+            </ProtectedRoute>
+          ) 
+        },
+        { 
+          path: 'userAsset/:id/details', 
+          element: (
+            <ProtectedRoute permissions={[Permissions.ADD_ASSET]}>
+              <UserAssetPage />
             </ProtectedRoute>
           ) 
         },
