@@ -148,6 +148,7 @@ class DeleteAssetAPI(SimpleCrudMixin):
 class ChangeAssetStatusAPI(generics.GenericAPIView):
     """ check for require permission for changing a asset  status"""
     permission_classes = [permissions.IsAuthenticated]
+
     serializer_class = ChangeAssetStatusSerializer
     def post(self, request,*args, **kwargs):
         serializers = self.serializer_class(data=request.data)
@@ -172,3 +173,24 @@ class ChangeAssetStatusAPI(generics.GenericAPIView):
                 {"status": "failure", "error_message": serializers.errors},
                 status=200,
             )
+            
+class getUsersAssetAPI(generics.GenericAPIView):
+    """ check for require permission for changing a asset  status"""
+    permission_classes = [permissions.IsAuthenticated, APILevelPermissionCheck]
+    required_permissions = [ "setup.add_asset"]
+
+    serializer_class = GetAllAssetSerializer
+    def get(self, request, pk, *args, **kwargs):
+        try:
+            user = User.objects.get(id=pk)
+            assets = Asset.objects.filter(owner=user).all().order_by('-created_at')
+            serializers = self.serializer_class(assets,many=True)
+            return Response(
+                {"status": "success", "success_message": serializers.data},
+                status=200
+            )   
+        except User.DoesNotExist:
+            return Response(
+                {"status": "failure", "error_message": "User Not Found"},
+                status=200,
+            ) 

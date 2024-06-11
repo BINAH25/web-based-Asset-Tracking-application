@@ -16,5 +16,6 @@ urlpatterns = [
     path("get/all/assets/", views.GetAllAsssetsAPI.as_view()),  
     path("delete/asset/", views.DeleteAssetAPI.as_view()),  
     path("update/status/", views.ChangeAssetStatusAPI.as_view()),  
+    path("user/<int:pk>/", views.getUsersAssetAPI.as_view()),  
   
 ]
