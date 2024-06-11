@@ -144,3 +144,31 @@ class DeleteAssetAPI(SimpleCrudMixin):
 
     serializer_class = GetAllAssetSerializer
     model_class = Asset
+
+class ChangeAssetStatusAPI(generics.GenericAPIView):
+    """ check for require permission for changing a asset  status"""
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ChangeAssetStatusSerializer
+    def post(self, request,*args, **kwargs):
+        serializers = self.serializer_class(data=request.data)
+        if serializers.is_valid():
+            asset_id = serializers.data['asset_id']
+            status = serializers.data['status']
+            try:
+                asset = Asset.objects.get(id=asset_id)
+                asset.status = status
+                asset.save()
+                return Response(
+                    {"status": "success", "success_message": "Asset  Status Updated"},
+                    status=200
+                )   
+            except Asset.DoesNotExist:
+                return Response(
+                    {"status": "failure", "error_message": "File Not Found"},
+                    status=200,
+                ) 
+        else:
+            return Response(
+                {"status": "failure", "error_message": serializers.errors},
+                status=200,
+            )

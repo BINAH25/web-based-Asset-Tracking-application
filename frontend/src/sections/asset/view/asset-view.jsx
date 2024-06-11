@@ -81,11 +81,13 @@ export default function AssetPage() {
     const [assets, setAssets] = useState([])
 
     const [editOpen, setEditOpen] = useState(false);
+    const [changeAssetStatusOpen, setChangeAssetStatusOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const userPermissions = useSelector((state) => new Set(state.authentication.userPermissions));
     const [deleteOpen, setDeleteOpen] = useState(false);
     const [deleteAsset,  { isLoading: loadingAsset, error: assetError }] = useDeleteAssetMutation()
-
+    const [assetStatusChange, setAssetStatusChange] = useState('');
+    
     const handleEditOpen = (item) => {
         setSelectedItem(item);
         setEditOpen(true);
@@ -95,7 +97,7 @@ export default function AssetPage() {
         setEditOpen(false);
         setSelectedItem(null);
     };
-
+    // delete asset
     const handleDeleteOpen = (item) => {
       setSelectedItem(item);
       setDeleteOpen(true);
@@ -103,6 +105,16 @@ export default function AssetPage() {
       
     const handleDeleteClose = () => {
       setDeleteOpen(false);
+      setSelectedItem(null);
+    }
+    // change assets status
+    const handleChangeStatusOpen = (item) => {
+      setSelectedItem(item);
+      setChangeAssetStatusOpen(true);
+    };
+      
+    const handleChangeStatusClose = () => {
+      setChangeAssetStatusOpen(false);
       setSelectedItem(null);
     }
 
@@ -356,55 +368,90 @@ export default function AssetPage() {
       setFilter(event.target.value);
     };
 
-    // delete asset
-  const renderDeleteForm = (
-    <Box  sx={{ my: 2 }}>
-      <Grid container spacing={2}>
-        <Grid item xs={6} >
-          <Typography variant="subtitle1">Product Name:</Typography>
-          <Typography variant="body1" >{selectedItem?.product?.product_name || 'N/A'}</Typography>
-        </Grid>
-        <Grid item xs={6} >
-              <Typography variant="subtitle1">Product Serial Number:</Typography>
-              <Typography variant="body1">{selectedItem?.product?.serial_number || 'N/A'}</Typography>
-            </Grid>
-        <Grid item xs={6} >
-          <Typography variant="subtitle1">Product Tag ID:</Typography>
-          <Typography variant="body1" >{selectedItem?.product?.tag?.tag_id || 'N/A'}</Typography>
-        </Grid>
-        <Grid item xs={6} >
-          <Typography variant="subtitle1">Tag Name:</Typography>
-          <Typography variant="body1" >{selectedItem?.product?.tag?.tag_name  || 'N/A'}</Typography>
-        </Grid>
-      </Grid>
-    
-      <Button
-        fullWidth
-        size="large"
-        type="submit"
-        variant="contained"
-        color="error"
-        onClick={handledeleteAsset}
-        disabled={loadingAsset}
-        sx={{ my: 2 }}
-      >
-        {loadingAsset && <CircularProgress size={30}/>}
-        Delete Asset
-      </Button>
 
-      <Button
-        fullWidth
-        size="large"
-        type="button"
-        variant="contained"
-        color="inherit"
-        onClick={handleDeleteClose}
-        sx={{ my: 2 }}
-      >
-        Cancel
-      </Button>
-    </Box>
-  );
+    // HANDLE ASSET STATUS CHANGE
+    const handleAssetStatusChange = (event) => {
+      setAssetStatusChange(event.target.value);
+    };
+    const changeStatusForm = (
+      <Stack spacing={3} sx={{ my: 2 }}>
+        <FormControl fullWidth required>
+          <InputLabel id="status-label">Select Status</InputLabel>
+          <Select
+            labelId="status-label"
+            id="status"
+            value={assetStatusChange}
+            label="status"
+            onChange={handleAssetStatusChange}
+          >
+            <MenuItem value="Functional"> Functional </MenuItem>
+            <MenuItem value="Maintenance"> In Maintenance </MenuItem>
+            <MenuItem value="Spoilt"> Spoilt </MenuItem>
+          </Select>
+        </FormControl>
+        <Button 
+          fullWidth size="large" 
+          type="submit" 
+          variant="contained" 
+          color="inherit"
+          // disabled={isLoading}
+          // onClick={handleAddInstitution}
+          >
+            {/* {isLoading && <CircularProgress size={30}/>} */}
+            Submit
+        </Button>
+      </Stack>
+
+    );
+    // delete asset
+    const renderDeleteForm = (
+      <Box  sx={{ my: 2 }}>
+        <Grid container spacing={2}>
+          <Grid item xs={6} >
+            <Typography variant="subtitle1">Product Name:</Typography>
+            <Typography variant="body1" >{selectedItem?.product?.product_name || 'N/A'}</Typography>
+          </Grid>
+          <Grid item xs={6} >
+                <Typography variant="subtitle1">Product Serial Number:</Typography>
+                <Typography variant="body1">{selectedItem?.product?.serial_number || 'N/A'}</Typography>
+              </Grid>
+          <Grid item xs={6} >
+            <Typography variant="subtitle1">Product Tag ID:</Typography>
+            <Typography variant="body1" >{selectedItem?.product?.tag?.tag_id || 'N/A'}</Typography>
+          </Grid>
+          <Grid item xs={6} >
+            <Typography variant="subtitle1">Tag Name:</Typography>
+            <Typography variant="body1" >{selectedItem?.product?.tag?.tag_name  || 'N/A'}</Typography>
+          </Grid>
+        </Grid>
+      
+        <Button
+          fullWidth
+          size="large"
+          type="submit"
+          variant="contained"
+          color="error"
+          onClick={handledeleteAsset}
+          disabled={loadingAsset}
+          sx={{ my: 2 }}
+        >
+          {loadingAsset && <CircularProgress size={30}/>}
+          Delete Asset
+        </Button>
+
+        <Button
+          fullWidth
+          size="large"
+          type="button"
+          variant="contained"
+          color="inherit"
+          onClick={handleDeleteClose}
+          sx={{ my: 2 }}
+        >
+          Cancel
+        </Button>
+      </Box>
+    );
 
     // detail form
     const renderEditForm = (
@@ -621,6 +668,7 @@ export default function AssetPage() {
                       handleClick={(event) => handleClick(event, row.serial_number)}
                       onEditClick={() => handleEditOpen(row)} 
                       onDeleteClick={() => handleDeleteOpen(row)} 
+                      onStatusChangeClick={() => handleChangeStatusOpen(row)} 
                     />
                   ))}
 
@@ -674,6 +722,22 @@ export default function AssetPage() {
           </Typography>
         </Stack>
         {renderDeleteForm}
+      </Box>
+    </Modal>
+    {/* CHANGE ASSET STATUS MODAL  */}
+    <Modal
+      open={changeAssetStatusOpen}
+      onClose={handleChangeStatusClose}
+      aria-labelledby="modal-modal-title"
+      aria-describedby="modal-modal-description"
+    >
+      <Box  sx={style}>
+        <Stack >
+          <Typography variant="h4" sx={{ my: 1, textAlign: 'center' }}>
+            Change Your Asset Status
+          </Typography>
+        </Stack>
+        {changeStatusForm}
       </Box>
     </Modal>
     </Container>

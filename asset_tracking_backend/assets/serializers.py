@@ -45,6 +45,7 @@ class GetAllAssetSerializer(serializers.ModelSerializer):
         fields = '__all__'
         
         
-class DeleteAssetSerializer(serializers.Serializer):
+class ChangeAssetStatusSerializer(serializers.Serializer):
     asset_id = serializers.CharField(max_length=254)
+    status = serializers.CharField(max_length=254)
     

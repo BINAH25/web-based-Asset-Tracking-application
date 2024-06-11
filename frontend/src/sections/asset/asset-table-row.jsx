@@ -27,6 +27,7 @@ export default function AssetTableRow({
   handleClick,
   onEditClick,
   onDeleteClick,
+  onStatusChangeClick
 }) {
   const [open, setOpen] = useState(null);
 
@@ -83,6 +84,12 @@ export default function AssetTableRow({
           <Iconify icon="eva:more-vertical-fill" sx={{ mr: 2 }} />
           More
         </MenuItem>
+
+        <MenuItem onClick={() => onStatusChangeClick()}>
+          <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
+          Edit
+        </MenuItem>
+        
         {userPermissions.has(Permissions.ADD_ASSET)?
           <MenuItem onClick={() => onDeleteClick()}  sx={{ color: 'error.main' }}>
             <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
@@ -106,4 +113,5 @@ AssetTableRow.propTypes = {
     created_by: PropTypes.any,
     onEditClick:PropTypes.func,
     onDeleteClick:PropTypes.func,
+    onStatusChangeClick:PropTypes.func,
 };
