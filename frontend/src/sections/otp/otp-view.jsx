@@ -97,7 +97,7 @@ export default function OtpView() {
       <Stack spacing={3} sx={{ my: 3 }}>
         <TextField 
         name="opt" 
-        label="otp"
+        label=" Enter OTP"
         onChange={(e) => setOpt(e.target.value)}
         required
          />

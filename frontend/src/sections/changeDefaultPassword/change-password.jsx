@@ -156,9 +156,6 @@ export default function ChangePasswordView() {
 
   return (
     <>
-    {user && (
-      <Navigate to="/asset" replace={true} />
-    )}
       <Box
         sx={{
           ...bgGradient({
