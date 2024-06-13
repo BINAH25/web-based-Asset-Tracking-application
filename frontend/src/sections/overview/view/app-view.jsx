@@ -1,8 +1,8 @@
-
+import React, { useState,useEffect } from 'react';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
-
+import { useLazyGetAssetsStatiticsQuery } from '../../../features/resources/resources-api-slice';
 import Iconify from '../../../components/iconify';
 
 import AppCurrentVisits from '../app-current-visits';
@@ -12,6 +12,24 @@ import AppWidgetSummary from '../app-widget-summary';
 // ----------------------------------------------------------------------
 
 export default function AppView() {
+
+  const [getStatitics, { data: response = [], isLoadding }] = useLazyGetAssetsStatiticsQuery();
+
+  useEffect(() => {
+    getStatitics(); 
+  }, [getStatitics]);
+
+
+  const totalProducts = response?.total_product_count || 0;
+  const totalAvailableProducts = response?.total_available_product_count || 0;
+  const totalProductsOut = response?.total_product_giving_out_count || 0;
+  const totalInstitutions = response?.total_institutions_count || 0;
+  const totalUsers = response?.total_users_count || 0;
+  const totalTags = response?.total_tags_count || 0;
+  const functional = response?.total_functional_assets_count || 0;
+  const maintenance = response?.total_assets_in_maintenance_count || 0;
+  const spoilt = response?.total_spoilt_assets_count || 0;
+
   return (
     <Container maxWidth="xl">
       <Typography variant="h4" sx={{ mb: 5 }}>
@@ -19,99 +37,70 @@ export default function AppView() {
       </Typography>
 
       <Grid container spacing={3}>
-        <Grid xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={4}>
           <AppWidgetSummary
-            title="Weekly Sales"
-            total={714000}
+            title="Total Products"
+            total={totalProducts}
             color="success"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
           />
         </Grid>
 
-        <Grid xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={4}>
           <AppWidgetSummary
-            title="New Users"
-            total={1352831}
-            color="info"
-            icon={<img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />}
+            title="Total Products Available"
+            total={totalAvailableProducts}
+            color="success"
+            icon={<img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
           />
         </Grid>
 
-        <Grid xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={4}>
           <AppWidgetSummary
-            title="Item Orders"
-            total={1723315}
+            title="Total Products Out"
+            total={totalProductsOut}
             color="warning"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_buy.png" />}
           />
         </Grid>
 
-        <Grid xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={4}>
           <AppWidgetSummary
-            title="Bug Reports"
-            total={234}
+            title="Total Users"
+            total={totalUsers}
+            color="error"
+            icon={<img alt="icon" src="/assets/icons/glass/users.png" />}
+          />
+        </Grid>
+        <Grid xs={12} sm={6} md={4}>
+          <AppWidgetSummary
+            title="Total Instititions"
+            total={totalInstitutions}
+            color="error"
+            icon={<img alt="icon" src="/assets/icons/glass/institutions.png" />}
+          />
+        </Grid>
+        <Grid xs={12} sm={6} md={4}>
+          <AppWidgetSummary
+            title="Total Tags"
+            total={totalTags}
             color="error"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_message.png" />}
           />
         </Grid>
 
-        <Grid xs={12} md={6} lg={8}>
-          <AppWebsiteVisits
-            title="Website Visits"
-            subheader="(+43%) than last year"
-            chart={{
-              labels: [
-                '01/01/2003',
-                '02/01/2003',
-                '03/01/2003',
-                '04/01/2003',
-                '05/01/2003',
-                '06/01/2003',
-                '07/01/2003',
-                '08/01/2003',
-                '09/01/2003',
-                '10/01/2003',
-                '11/01/2003',
-              ],
-              series: [
-                {
-                  name: 'Team A',
-                  type: 'column',
-                  fill: 'solid',
-                  data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30],
-                },
-                {
-                  name: 'Team B',
-                  type: 'area',
-                  fill: 'gradient',
-                  data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43],
-                },
-                {
-                  name: 'Team C',
-                  type: 'line',
-                  fill: 'solid',
-                  data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39],
-                },
-              ],
-            }}
-          />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
+        <Grid xs={12} md={6} lg={12}>
           <AppCurrentVisits
-            title="Current Visits"
+            title="Assets Status"
             chart={{
               series: [
-                { label: 'America', value: 4344 },
-                { label: 'Asia', value: 5435 },
-                { label: 'Europe', value: 1443 },
-                { label: 'Africa', value: 4443 },
+                { label: 'Functional', value: functional },
+                { label: 'In Maintenance', value: maintenance },
+                { label: 'Spoilt', value: spoilt },
               ],
             }}
           />
         </Grid>
-
-        
       </Grid>
     </Container>
   );

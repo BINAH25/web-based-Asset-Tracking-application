@@ -194,3 +194,40 @@ class getUsersAssetAPI(generics.GenericAPIView):
                 {"status": "failure", "error_message": "User Not Found"},
                 status=200,
             ) 
+
+# ON THE DASHBOARD PAGE
+# TOTAL PRODUCTS
+# TOTAL AVAILABLE PRODUCT 
+# TOTAL TOTAL PRODUCT GIVE OUT
+# TOTAL INSTITUTIONS
+# TOTAL USERS
+
+class DashboardAPI(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated, APILevelPermissionCheck]
+    required_permissions = [ "setup.view_dashboard"]
+    def get(self, request, *args, **kwargs):
+        total_product_count = Product.objects.all().count()
+        total_available_product_count = Product.objects.filter(availability="Available").all().count()
+        total_product_giving_out_count = Asset.objects.all().count()
+        total_institutions_count =  Institution.objects.all().count()
+        total_users_count =  User.objects.all().count()
+        total_tags_count =  Tag.objects.all().count()
+        total_functional_assets_count = Asset.objects.filter(status="Functional").all().count()
+        total_assets_in_maintenance_count = Asset.objects.filter(status="Maintenance").all().count()
+        total_spoilt_assets_count = Asset.objects.filter(status="Spoilt").all().count()
+
+        return Response({
+            "total_product_count": total_product_count,
+            "total_available_product_count": total_available_product_count,
+            "total_product_giving_out_count": total_product_giving_out_count,
+            "total_institutions_count": total_institutions_count,
+            "total_users_count": total_users_count,
+            "total_tags_count": total_tags_count,
+            "total_functional_assets_count": total_functional_assets_count,
+            "total_assets_in_maintenance_count": total_assets_in_maintenance_count,
+            "total_spoilt_assets_count": total_spoilt_assets_count,
+        })
+
+
+
+ 
