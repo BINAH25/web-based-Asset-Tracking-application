@@ -198,9 +198,13 @@ class getUsersAssetAPI(generics.GenericAPIView):
 # ON THE DASHBOARD PAGE
 # TOTAL PRODUCTS
 # TOTAL AVAILABLE PRODUCT 
-# TOTAL TOTAL PRODUCT GIVE OUT
+# TOTAL TOTAL PRODUCTS OUT
 # TOTAL INSTITUTIONS
 # TOTAL USERS
+# TOTAL TAGS
+# FUNCTIONAL ASSETS
+# ASSETS IN MAINTENANCE 
+# SPOILT ASSETS
 
 class DashboardAPI(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated, APILevelPermissionCheck]
