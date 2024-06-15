@@ -34,15 +34,18 @@ class Asset(models.Model):
     status = models.CharField(max_length=100, default="Functional")
     created_at = models.DateTimeField(auto_now_add=True)
     def __str__(self):
-        return str(self.product )+ " " + str(self.owner)
+        return str(self.product )+ " - " + str(self.owner)
     
 class AssetLog(models.Model):
-    asset = models.ForeignKey(Asset, on_delete=models.CASCADE)
+    asset = models.ForeignKey(Asset, on_delete=models.SET_NULL, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    asset_name = models.CharField(max_length=255, null=True, blank=True)
+    asset_serial_number = models.CharField(max_length=100, null=True, blank=True)
+    asset_owner = models.CharField(max_length=200, null=True, blank=True)
     action = models.CharField(max_length=250)
     timestamp = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
-        return self.user
+        return self.action
 
 

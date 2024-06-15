@@ -240,7 +240,7 @@ export default function AssetPage() {
         duration: 5000,
         isClosable: true,
     })
-      assets((prevAssets) => prevAssets.filter((asset) => asset.id !== selectedItem.id));
+      setAssets((prevAssets) => prevAssets.filter((asset) => asset.id !== selectedItem.id));
       handleDeleteClose()
     }
     } catch (err) {
@@ -252,6 +252,7 @@ export default function AssetPage() {
         duration: 2000,
         isClosable: true,
     })
+    console.log(err)
     }
 
   }
@@ -266,6 +267,7 @@ export default function AssetPage() {
           duration: 2000,
           isClosable: true,
       })
+      console.log(assetError)
     }
   }, [assetError, toast])
 

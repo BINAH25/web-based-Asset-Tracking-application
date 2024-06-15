@@ -15,6 +15,7 @@ from django.db.models import Q
 from assets.forms import *
 from users.mixins import SimpleCrudMixin
 from utils.form_error import get_errors_from_form
+from assets.models import *
 User = get_user_model()
 logger = logging.getLogger('user_activity')
 
@@ -111,6 +112,15 @@ class AddAssetAPI(generics.GenericAPIView):
             asset = serializers.save(created_by=request.user) 
             product.availability = "Unavailable"
             product.save()
+            asset_log = AssetLog.objects.create(
+                asset=asset,
+                asset_name=asset.product.product_name,  
+                asset_serial_number=asset.product.serial_number,  
+                asset_owner = asset.owner.username,
+                user=request.user, 
+                action=f'added {product}')
+            asset_log.save()
+            print(asset_log.action)
             serializer = GetAllAssetSerializer(asset)
             return Response(serializer.data,
                     status=status.HTTP_201_CREATED,
@@ -147,6 +157,34 @@ class DeleteAssetAPI(SimpleCrudMixin):
 
     serializer_class = GetAllAssetSerializer
     model_class = Asset
+    def delete(self, request, *args, **kwargs):
+        obj_id = request.data.get("id")
+        obj = self.model_class.objects.filter(id=obj_id).first()
+        if obj:
+            try:
+                asset_log =  AssetLog.objects.create(
+                    asset=obj,
+                    asset_name=obj.product.product_name,  
+                    asset_serial_number=obj.product.serial_number,  
+                    asset_owner = obj.owner.username,
+                    user=request.user,
+                    action=f'deleted {obj}'
+                )
+                asset_log.save()
+                obj.delete()
+                return Response({
+                    "success_message":
+                    f"{self.model_class.__name__} deleted successfully"
+                })
+            except Exception as e:
+                return Response({
+                    "error_message":
+                    f"{self.model_class.__name__} could not be deleted: {e}"
+                })
+        return Response({
+            "error_message":
+            f"{self.model_class.__name__} could not be deleted"
+        })
 
 class ChangeAssetStatusAPI(generics.GenericAPIView):
     """ check for require permission for changing a asset  status"""
@@ -160,8 +198,17 @@ class ChangeAssetStatusAPI(generics.GenericAPIView):
             status = serializers.data['status']
             try:
                 asset = Asset.objects.get(id=asset_id)
+                previous_status = asset.status
                 asset.status = status
                 asset.save()
+                asset_log = AssetLog.objects.create(
+                    asset=asset, 
+                    user=request.user, 
+                    asset_name=asset.product.product_name,  
+                    asset_serial_number=asset.product.serial_number,  
+                    asset_owner = asset.owner.username,
+                    action=f'Updated {asset.product.product_name} from {previous_status} to  {asset.status}')
+                asset_log.save()
                 return Response(
                     {"status": "success", "success_message": "Asset  Status Updated"},
                     status=200
