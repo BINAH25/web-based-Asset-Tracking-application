@@ -9,12 +9,68 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
+import os
 
 from pathlib import Path
 from . info import *
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+LOGS_ROOT = BASE_DIR / "logs/"
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "standard": {
+            "format": "%(asctime)s %(levelname)s %(name)s %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        }
+    },
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "standard",
+        },
+        "file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": LOGS_ROOT / "system.log",
+            "formatter": "standard",
+        },
+    },
+    "loggers": {
+        "django": {
+            "level": "INFO",
+            "handlers": ["console", "file"],
+            "propagate": True,
+        },
+        "django.server": {
+            "level": "INFO",
+            "handlers": ["console", "file"],
+            "propagate": False,
+        },
+        "django.request": {
+            "level": "INFO",
+            "handlers": ["console", "file"],
+            "propagate": False,
+        },
+        "django.db.backends": {
+            "level": "INFO",
+            "handlers": ["console", "file"],
+            "propagate": False,
+        },
+    },
+    "root": {
+        "level": "DEBUG",
+        "handlers": ["console", "file"],
+    },
+}
+
+
+if not os.path.exists(LOGS_ROOT):
+    os.makedirs(LOGS_ROOT)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -62,6 +118,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'asset_tracking_backend.middleware.LogUserVisits',
+
 ]
 
 ROOT_URLCONF = "asset_tracking_backend.urls"

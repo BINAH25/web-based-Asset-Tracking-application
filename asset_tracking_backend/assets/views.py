@@ -1,3 +1,4 @@
+import logging
 from django.shortcuts import render
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -15,6 +16,8 @@ from assets.forms import *
 from users.mixins import SimpleCrudMixin
 from utils.form_error import get_errors_from_form
 User = get_user_model()
+logger = logging.getLogger('user_activity')
+
 # Create your views here.
 
 class AddTagAPI(SimpleCrudMixin):

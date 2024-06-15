@@ -1,3 +1,4 @@
+import logging
 from django.shortcuts import render
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -22,6 +23,7 @@ import datetime
 from users.forms import *
 from users.mixins import SimpleCrudMixin
 User = get_user_model()
+logger = logging.getLogger('user_activity')
 # Create your views here.
 
 def get_auth_for_user(user):
