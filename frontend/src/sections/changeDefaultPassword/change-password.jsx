@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { useChangeOwnPasswordMutation } from '../../features/resources/resources-api-slice';
+import { setUser as setStoreUser, setToken, setUserPermissions } from '../../features/authentication/authentication';
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
@@ -28,13 +29,12 @@ export default function ChangePasswordView() {
   const theme = useTheme();
   const router = useRouter()
   const toast = useToast()
-  const user = useSelector((state) => state.authentication.user);
   const [showPassword, setShowPassword] = useState(false);
   const [changePassowrd, { isLoading }] = useChangeOwnPasswordMutation()
   const [oldPassword, setOldPassword] = useState()
   const [newPassword, setNewPassword] = useState()
   const dispatch = useDispatch();
-
+  const [user, setUser] = useState(null)
 
   const handlechangePassowrd = async (event) => {
     event.preventDefault()
@@ -82,9 +82,8 @@ export default function ChangePasswordView() {
         dispatch(setToken(response['token'])); 
         dispatch(setUserPermissions(response['user_permissions']));
         setUser(response['user']);
-        window.location = "/asset"
+        router.push("/asset") 
         window.location.reload()
-        //router.push("/asset") 
     }
     } catch (err) {
       toast({
@@ -95,6 +94,7 @@ export default function ChangePasswordView() {
         duration: 2000,
         isClosable: true,
     })
+    console.log(err)
     }
   };
 
