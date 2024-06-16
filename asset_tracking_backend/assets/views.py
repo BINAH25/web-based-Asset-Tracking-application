@@ -246,7 +246,13 @@ class getUsersAssetAPI(generics.GenericAPIView):
             ) 
             
             
+class AssetLogAPI(SimpleCrudMixin):
+    permission_classes = [permissions.IsAuthenticated, APILevelPermissionCheck]
+    required_permissions = [ "setup.view_activity_log"]
 
+    serializer_class = AssetLogSerializer
+    model_class = AssetLog
+        
 
 # ON THE DASHBOARD PAGE
 # TOTAL PRODUCTS

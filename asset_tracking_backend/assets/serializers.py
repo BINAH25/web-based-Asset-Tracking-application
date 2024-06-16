@@ -49,3 +49,9 @@ class ChangeAssetStatusSerializer(serializers.Serializer):
     asset_id = serializers.CharField(max_length=254)
     status = serializers.CharField(max_length=254)
     
+    
+class AssetLogSerializer(serializers.ModelSerializer):
+    user = UserLoginSerializer()
+    class Meta:
+        model = AssetLog
+        fields = '__all__'

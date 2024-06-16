@@ -18,5 +18,6 @@ urlpatterns = [
     path("update/status/", views.ChangeAssetStatusAPI.as_view()),  
     path("user/<int:id>/", views.getUsersAssetAPI.as_view()),  
     path("dashboard/", views.DashboardAPI.as_view()),  
+    path("assetlog/", views.AssetLogAPI.as_view()),  
   
 ]
