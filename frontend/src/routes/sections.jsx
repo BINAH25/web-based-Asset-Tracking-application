@@ -19,6 +19,7 @@ export const Page401 = lazy(() => import('../pages/401'));
 export const UserAssetPage = lazy(() => import('../pages/userAsset'));
 export const ChangePasswordPage = lazy(() => import('../pages/changePassword'));
 export const UserActivityPage = lazy(() => import('../pages/activityLog'));
+export const AssetLogPage = lazy(() => import('../pages/assetLog'));
 
 export default function Router() {
   const routes = useRoutes([
@@ -100,6 +101,14 @@ export default function Router() {
           element: (
             <ProtectedRoute permissions={[Permissions.VIEW_ACTIVITITY_LOG]}>
               <UserActivityPage />
+            </ProtectedRoute>
+          ) 
+        },
+        { 
+          path: 'asset/logs', 
+          element: (
+            <ProtectedRoute permissions={[Permissions.MANAGE_PRODUCT]}>
+              <AssetLogPage />
             </ProtectedRoute>
           ) 
         },
