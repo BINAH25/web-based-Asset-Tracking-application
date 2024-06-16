@@ -232,3 +232,10 @@ class ChangeOwnPassword(generics.GenericAPIView):
         else:
             return Response({"status": "error", "error_message": "Invalid session. Please logout and login again"})
 
+class ActivityLogAPI(SimpleCrudMixin):
+    permission_classes = [permissions.IsAuthenticated, APILevelPermissionCheck]
+    required_permissions = [ "setup.view_activity_log"]
+
+    serializer_class = UserActivityLogSerializer
+    model_class = ActivityLog
+        

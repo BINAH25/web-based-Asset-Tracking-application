@@ -27,6 +27,7 @@ class SetupPerm(models.Model):
             # product
             ("manage_product", "Can manage products"),
             ("view_dashboard", "Can view dashboard"),
+            ("view_activity_log", "Can view activity log"),
             # asset
             ("view_all_assets", "Can view asset"),
             ("add_asset", "Can add asset"),

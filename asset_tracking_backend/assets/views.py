@@ -244,6 +244,9 @@ class getUsersAssetAPI(generics.GenericAPIView):
                 {"status": "failure", "error_message": "User Not Found"},
                 status=200,
             ) 
+            
+            
+
 
 # ON THE DASHBOARD PAGE
 # TOTAL PRODUCTS

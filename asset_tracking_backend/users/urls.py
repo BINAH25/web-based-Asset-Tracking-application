@@ -12,5 +12,6 @@ urlpatterns = [
     path("institutions/", views.InstitutionAPI.as_view()),
     path("get/all/new/institutions/", views.GetAllNewInstitutionAPI.as_view()),
     path("users/", views.UsersAPI.as_view()),
+    path("activity/logs/", views.ActivityLogAPI.as_view()),
   
 ]

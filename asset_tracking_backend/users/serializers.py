@@ -49,6 +49,12 @@ class UserLoginSerializer(serializers.ModelSerializer):
             'changed_password'
         ]
         
+class UserActivityLogSerializer(serializers.ModelSerializer):
+   
+    class Meta:
+        model = ActivityLog
+        fields = '__all__'
+        
 class OTPVerifySerializer(serializers.Serializer):
     #username = serializers.CharField()
     otp = serializers.CharField(max_length=6)
