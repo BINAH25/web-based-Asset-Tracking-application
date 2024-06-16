@@ -25,7 +25,7 @@ class LogUserVisits(object):
             action = "%s %s" % (request.method, path)
 
             end = time.time_ns()
-            duration_in_mills = (end - start) / 1_000_000_000
+            duration_in_mills = (end - start) // 1_000_000
 
             ActivityLog.objects.create(username=username,
                                         action=action,

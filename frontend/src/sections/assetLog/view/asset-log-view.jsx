@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
-import { useLazyGetActivityLogsQuery } from '../../../features/resources/resources-api-slice';
+import { useLazyGetAssetLogQuery } from '../../../features/resources/resources-api-slice';
 import { useToast } from '@chakra-ui/react'
 import Iconify from '../../../components/iconify';
 import Scrollbar from '../../../components/scrollbar';
@@ -53,18 +53,18 @@ export default function AssetLogView() {
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [getActivityLogs, { data: response = [], isLoading }] = useLazyGetActivityLogsQuery()
-  const [activityLogs, setActivityLogs] = useState([])
+  const [getAseetLogs, { data: response = [], isLoading }] = useLazyGetAssetLogQuery()
+  const [assetLogs, setAssetLogs] = useState([])
 
 
   useEffect(() => {
-    getActivityLogs();
-  }, [getActivityLogs]);
+    getAseetLogs();
+  }, [getAseetLogs]);
 
-
+  console.log(assetLogs)
   useEffect(() => {
       if (response && Array.isArray(response.success_message)) {
-        setActivityLogs(response.success_message);
+        setAssetLogs(response.success_message);
       }
   }, [response]);
 
@@ -78,7 +78,7 @@ export default function AssetLogView() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = activityLogs.map((n) => n.usernane);
+      const newSelecteds = assetLogs.map((n) => n.usernane);
       setSelected(newSelecteds);
       return;
     }
@@ -118,7 +118,7 @@ export default function AssetLogView() {
   };
 
   const dataFiltered = applyFilter({
-    inputData: activityLogs,
+    inputData: assetLogs,
     comparator: getComparator(order, orderBy),
     filterName,
   });
@@ -146,15 +146,17 @@ export default function AssetLogView() {
               <UserTableHead
                 order={order}
                 orderBy={orderBy}
-                rowCount={activityLogs.length}
+                rowCount={assetLogs.length}
                 numSelected={selected.length}
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
-                  { id: 'username', label: 'Username' },
+                  { id: 'username', label: 'User' },
                   { id: 'action', label: 'Action' },
                   { id: 'created_at', label: 'Created At ' },
-                  { id: 'duration_in_mills', label: 'Duration In Milliseconds' },
+                  { id: 'asset_name', label: 'Asset Name' },
+                  { id: 'asset_serial_number', label: 'Asset Serial Number' },
+                  { id: 'asset_owner', label: 'Asset Owner' },
                   { id: '' },
                 ]}
               />
@@ -164,17 +166,19 @@ export default function AssetLogView() {
                   .map((row) => (
                     <AssetLogTableRow
                       key={row.id}
-                      username={row.username}
+                      username={row?.user?.username}
                       action={row.action}
                       created_at={formatISODate(row.created_at)}
-                      duration_in_mills={row.duration_in_mills}
+                      asset_name={row.asset_name}
+                      asset_serial_number={row.asset_serial_number}
+                      asset_owner={row.asset_owner}
                       selected={selected.indexOf(row.usernane) !== -1}
                     />
                   ))}
 
                 <TableEmptyRows
                   height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, activityLogs.length)}
+                  emptyRows={emptyRows(page, rowsPerPage, assetLogs.length)}
                 />
 
                 {notFound && <TableNoData query={filterName} />}
@@ -186,7 +190,7 @@ export default function AssetLogView() {
         <TablePagination
           page={page}
           component="div"
-          count={activityLogs.length}
+          count={assetLogs.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25, 50, 100]}

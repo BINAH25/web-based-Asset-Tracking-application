@@ -43,7 +43,7 @@ class AssetLog(models.Model):
     asset_serial_number = models.CharField(max_length=100, null=True, blank=True)
     asset_owner = models.CharField(max_length=200, null=True, blank=True)
     action = models.CharField(max_length=250)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
         return self.action

@@ -19,7 +19,9 @@ export default function AssetLogTableRow({
   username,
   action,
   created_at,
-  duration_in_mills,
+  asset_name,
+  asset_serial_number,
+  asset_owner,
 }) {
   const [open, setOpen] = useState(null);
 
@@ -50,7 +52,9 @@ export default function AssetLogTableRow({
 
         <TableCell>{created_at}</TableCell>
 
-        <TableCell>{duration_in_mills}</TableCell>
+        <TableCell>{asset_name}</TableCell>
+        <TableCell>{asset_serial_number}</TableCell>
+        <TableCell>{asset_owner}</TableCell>
 
         <TableCell align="right">
           <IconButton >
@@ -79,6 +83,8 @@ AssetLogTableRow.propTypes = {
     username: PropTypes.any,
     action: PropTypes.any,
     created_at: PropTypes.any,
-    duration_in_mills: PropTypes.any,
+    asset_name: PropTypes.any,
+    asset_serial_number: PropTypes.any,
+    asset_owner: PropTypes.any,
     selected: PropTypes.any,
 };

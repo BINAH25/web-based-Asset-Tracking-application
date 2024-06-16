@@ -201,10 +201,11 @@ export const resourceApiSlice = createApi({
                     }
                 },
             }),
-
-        
-           
-            
+            getAssetLog: builder.query({
+                query() {
+                    return `/api/assets/assetlog/`;
+                },
+            }),
 
         };
     },
@@ -242,6 +243,7 @@ export const {
     usePutAssetStatusMutation,
     useLazyGetAllUserAssetsQuery,
     useLazyGetAssetsStatiticsQuery,
+    useLazyGetAssetLogQuery,
     
 } = resourceApiSlice;
 
