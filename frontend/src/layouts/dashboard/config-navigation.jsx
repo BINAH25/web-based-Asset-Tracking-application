@@ -45,13 +45,13 @@ const navConfig = [
   {
     title: 'asset logs',
     path: '/asset/logs',
-    icon: icon('ic_cart'),
+    icon: icon('ic_lock'),
     permission: `${Permissions.VIEW_ACTIVITITY_LOG}`
   },
   {
     title: 'activity logs',
     path: '/activity/logs',
-    icon: icon('ic_cart'),
+    icon: icon('ic_lock'),
     permission: `${Permissions.VIEW_ACTIVITITY_LOG}`
   },
   
