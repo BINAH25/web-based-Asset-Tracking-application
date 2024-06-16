@@ -42,6 +42,12 @@ const navConfig = [
     icon: icon('ic_cart'),
     permission: `${Permissions.MANAGE_PRODUCT}`
   },
+  {
+    title: 'activity logs',
+    path: '/activity/logs',
+    icon: icon('ic_cart'),
+    permission: `${Permissions.MANAGE_PRODUCT}`
+  },
   
 ];
 
