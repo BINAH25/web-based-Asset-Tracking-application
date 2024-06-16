@@ -107,7 +107,7 @@ export default function Router() {
         { 
           path: 'asset/logs', 
           element: (
-            <ProtectedRoute permissions={[Permissions.MANAGE_PRODUCT]}>
+            <ProtectedRoute permissions={[Permissions.VIEW_ACTIVITITY_LOG]}>
               <AssetLogPage />
             </ProtectedRoute>
           ) 
