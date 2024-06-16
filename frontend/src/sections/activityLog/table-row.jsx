@@ -17,10 +17,9 @@ import Iconify from '../../components/iconify';
 export default function ActivityTableRow({
   selected,
   username,
-  email,
-  institution_name,
-  location,
-  phone,
+  action,
+  created_at,
+  duration_in_mills,
 }) {
   const [open, setOpen] = useState(null);
 
@@ -47,16 +46,14 @@ export default function ActivityTableRow({
           </Stack>
         </TableCell>
 
-        <TableCell>{email}</TableCell>
+        <TableCell>{action}</TableCell>
 
-        <TableCell>{institution_name}</TableCell>
+        <TableCell>{created_at}</TableCell>
 
-        <TableCell>{location}</TableCell>
-
-        <TableCell>{phone}</TableCell>
+        <TableCell>{duration_in_mills}</TableCell>
 
         <TableCell align="right">
-          <IconButton onClick={handleOpenMenu}>
+          <IconButton >
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
         </TableCell>
@@ -80,9 +77,8 @@ export default function ActivityTableRow({
 
 ActivityTableRow.propTypes = {
     username: PropTypes.any,
-    email: PropTypes.any,
-    institution_name: PropTypes.any,
-    location: PropTypes.any,
+    action: PropTypes.any,
+    created_at: PropTypes.any,
+    duration_in_mills: PropTypes.any,
     selected: PropTypes.any,
-    phone: PropTypes.any,
 };

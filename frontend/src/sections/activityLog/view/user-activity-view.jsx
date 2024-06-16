@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
-import { useLazyGetAllInstitutionsQuery } from '../../../features/resources/resources-api-slice';
+import { useLazyGetActivityLogsQuery } from '../../../features/resources/resources-api-slice';
 import { useToast } from '@chakra-ui/react'
 import Iconify from '../../../components/iconify';
 import Scrollbar from '../../../components/scrollbar';
@@ -21,16 +21,29 @@ import UserTableHead from '../../user/user-table-head';
 import { emptyRows, applyFilter, getComparator } from '../../user/utils';
 
 // ----------------------------------------------------------------------
-const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    boxShadow: 24,
-    p: 4,
-  };
+
+function formatISODate(isoString) {
+    // Step 1: Parse the ISO 8601 string into a Date object
+    const date = new Date(isoString);
+  
+    // Step 2: Format the Date object into a more readable string
+    // Customize the options as needed
+    const options = {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      timeZoneName: 'short'
+    };
+  
+    // Convert to a readable format
+    const readableDate = date.toLocaleString('en-US', options);
+  
+    return readableDate;
+  }
+
 export default function UserActivityView() {
 
   const toast = useToast()
@@ -40,18 +53,18 @@ export default function UserActivityView() {
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [getInstitutions, { data: response = [], isLoading }] = useLazyGetAllInstitutionsQuery()
-  const [institutions, setInstitutions] = useState([])
+  const [getActivityLogs, { data: response = [], isLoading }] = useLazyGetActivityLogsQuery()
+  const [activityLogs, setActivityLogs] = useState([])
 
 
   useEffect(() => {
-    getInstitutions();
-  }, [getInstitutions]);
+    getActivityLogs();
+  }, [getActivityLogs]);
 
 
   useEffect(() => {
       if (response && Array.isArray(response.success_message)) {
-          setInstitutions(response.success_message);
+        setActivityLogs(response.success_message);
       }
   }, [response]);
 
@@ -65,7 +78,7 @@ export default function UserActivityView() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = institutions.map((n) => n.usernane);
+      const newSelecteds = activityLogs.map((n) => n.usernane);
       setSelected(newSelecteds);
       return;
     }
@@ -105,7 +118,7 @@ export default function UserActivityView() {
   };
 
   const dataFiltered = applyFilter({
-    inputData: institutions,
+    inputData: activityLogs,
     comparator: getComparator(order, orderBy),
     filterName,
   });
@@ -133,37 +146,35 @@ export default function UserActivityView() {
               <UserTableHead
                 order={order}
                 orderBy={orderBy}
-                rowCount={institutions.length}
+                rowCount={activityLogs.length}
                 numSelected={selected.length}
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
                   { id: 'username', label: 'Username' },
-                  { id: 'email', label: 'Email' },
-                  { id: 'institution_name', label: 'Institution Name' },
-                  { id: 'location', label: 'Location' },
-                  { id: 'phone', label: 'Phone' },
+                  { id: 'action', label: 'Action' },
+                  { id: 'created_at', label: 'Created At ' },
+                  { id: 'duration_in_mills', label: 'Duration In Milliseconds' },
                   { id: '' },
                 ]}
               />
               <TableBody>
-                {dataFiltered
+                {  isLoading? <CircularProgress/> :dataFiltered
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <ActivityTableRow
                       key={row.id}
                       username={row.username}
-                      email={row.email}
-                      institution_name={row.institution_name}
-                      location={row.location}
-                      phone={row.phone}
+                      action={row.action}
+                      created_at={formatISODate(row.created_at)}
+                      duration_in_mills={row.duration_in_mills}
                       selected={selected.indexOf(row.usernane) !== -1}
                     />
                   ))}
 
                 <TableEmptyRows
                   height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, institutions.length)}
+                  emptyRows={emptyRows(page, rowsPerPage, activityLogs.length)}
                 />
 
                 {notFound && <TableNoData query={filterName} />}
@@ -175,10 +186,10 @@ export default function UserActivityView() {
         <TablePagination
           page={page}
           component="div"
-          count={institutions.length}
+          count={activityLogs.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
-          rowsPerPageOptions={[5, 10, 25]}
+          rowsPerPageOptions={[5, 10, 25, 50, 100]}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Card>

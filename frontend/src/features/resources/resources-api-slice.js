@@ -45,6 +45,11 @@ export const resourceApiSlice = createApi({
                     return `/api/users/`;
                 },
             }),
+            getActivityLogs: builder.query({
+                query() {
+                    return `/api/activity/logs/`;
+                },
+            }),
 
             deleteUsers: builder.mutation({
                 query(body) {
@@ -214,6 +219,7 @@ export const {
     useDeleteUsersMutation,
     useLogOutUserMutation,
     useChangeOwnPasswordMutation,
+    useLazyGetActivityLogsQuery,
     // Institutions
     useLazyGetAllInstitutionsQuery,
     useLazyGetAllNewInstitutionsQuery,

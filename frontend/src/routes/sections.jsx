@@ -98,7 +98,7 @@ export default function Router() {
         { 
           path: 'activity/logs', 
           element: (
-            <ProtectedRoute permissions={[Permissions.MANAGE_PRODUCT]}>
+            <ProtectedRoute permissions={[Permissions.VIEW_ACTIVITITY_LOG]}>
               <UserActivityPage />
             </ProtectedRoute>
           ) 
