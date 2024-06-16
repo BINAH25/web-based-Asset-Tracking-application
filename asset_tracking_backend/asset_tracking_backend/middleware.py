@@ -18,14 +18,17 @@ class LogUserVisits(object):
         response = self.get_response(request)
 
         path = request.path
-        username = request.user.username if request.user.is_authenticated else "Anonymous"
-        action = "%s %s" % (request.method, path)
+        ignore = ["uploads", "static", "admin", "media"]
+        if not any(x in path.split("/") for x in ignore):
 
-        end = time.time_ns()
-        duration_in_mills = (end - start) // 1_000_000
+            username = request.user.username if request.user.is_authenticated else "Anonymous"
+            action = "%s %s" % (request.method, path)
 
-        ActivityLog.objects.create(username=username,
-                                    action=action,
-                                    duration_in_mills=duration_in_mills)
+            end = time.time_ns()
+            duration_in_mills = (end - start) // 1_000_000
+
+            ActivityLog.objects.create(username=username,
+                                        action=action,
+                                        duration_in_mills=duration_in_mills)
         return response
 
