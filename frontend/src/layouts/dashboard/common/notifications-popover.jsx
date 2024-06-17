@@ -21,7 +21,7 @@ export default function NotificationsPopover() {
   return (
     <>
       <IconButton color={open ? 'primary' : 'default'} >
-        <Badge badgeContent={2} color="error">
+        <Badge badgeContent={0} color="error">
           <Iconify width={24} icon="solar:bell-bing-bold-duotone" />
         </Badge>
       </IconButton>
