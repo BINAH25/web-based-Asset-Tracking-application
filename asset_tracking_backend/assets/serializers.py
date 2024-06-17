@@ -51,7 +51,6 @@ class ChangeAssetStatusSerializer(serializers.Serializer):
     
     
 class AssetLogSerializer(serializers.ModelSerializer):
-    user = UserLoginSerializer()
     class Meta:
         model = AssetLog
         fields = '__all__'
