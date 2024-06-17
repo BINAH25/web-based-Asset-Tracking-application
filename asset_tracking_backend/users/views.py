@@ -153,16 +153,44 @@ class AddUserAPI(generics.GenericAPIView):
                     {"status": "error", "error_message":"Password Must be At least four characters"},
                     status=200
                 )
-            try:    
+            try: 
+                email=institution.email  
+                username=institution.username 
+                name = institution.institution_name 
                 user = User.objects.create_user(username=institution.username, email=institution.email, password=password, institution=institution,created_by=request.user)
                 institution.status = "Completed"
                 institution.save()
                 user.save()
                 serializer = UserLoginSerializer(user)
-                return Response(
-                    serializer.data,
-                    status=status.HTTP_201_CREATED,
+                context = {
+                    "username":username,
+                    "name":name,
+                    "email":email,
+                    "password":password
+                }
+                html_message = render_to_string("login_detail.html",context)
+                plain_message = strip_tags(html_message)
+                try:
+                    message = EmailMultiAlternatives(
+                    subject="Your Login Details",
+                    body=plain_message,
+                    from_email=settings.EMAIL_HOST_USER,
+                    to=[email],
                 )
+                    message.attach_alternative(html_message, 'text/html')
+                    message.send()
+                    return Response(
+                        serializer.data,
+                        status=status.HTTP_201_CREATED,
+                    )
+                except Exception as e:
+                    return Response(
+                        {
+                            "status": "error",
+                            "error_message": f"Error sending email: {e}, try again",
+                        },
+                        status=200,
+                    )
             except Institution.DoesNotExist:
                 return Response(
                     {"status": "error", "error_message":"institution Not Found"},
@@ -219,7 +247,12 @@ class ChangeOwnPassword(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         old_password = request.data.get("old_password")
         new_password = request.data.get("new_password")
-
+        if len(new_password) < 4:
+            return Response(
+                {"status": "error", "error_message":"Password Must be At least four characters"},
+                status=200
+            )
+        
         user = request.user
         if old_password and new_password and user and user.check_password(old_password):
             user.set_password(new_password)

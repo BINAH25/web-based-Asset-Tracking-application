@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification</title>
+    <style>
+        body {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .verify-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            padding: 40px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .verify-container .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 6px solid #ac6db3;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .verify-container .container img {
+            width: 200px;
+        }
+
+        .verify-container .container h2 {
+            font-size: 2.5rem;
+        }
+
+        .verify-container .container .footer {
+            margin-top: 3rem;
+            text-align: left;
+            font-size: .8rem;
+        }
+
+        .verify-container .container .footer p {
+            line-height: 1;
+        }
+
+        .verify-container .body h4 {
+            text-align: left;
+            padding-top: 2rem;
+            font-size: 1.2rem;
+        }
+
+        .verify-container .body p {
+            text-align: left;
+            padding-top: 1.5rem;
+        }
+
+        .green {
+            color: green;
+        }
+
+        .red {
+            color: red;
+        }
+
+        .verify-container .body a {
+            color: rgb(9, 9, 163);
+            font-size: 2rem;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        @media screen and (max-width: 600px) {
+            .verify-container .container {
+                width: 100%;
+            }
+            
+        }
+    </style>
+</head>
+<body>
+    <div class="verify-container" style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; padding: 40px; box-sizing: border-box; text-align: center;">
+        <div class="container" style="background-color: white; padding: 20px; border-radius: 10px; border: 6px solid #ac6db3; width: 100%; max-width: 600px;">
+            <h2 style="font-size: 2.5rem;  color: #020202;">Login Detail</h2>
+    
+            <div class="body">
+                <p style="text-align: left; padding-top: 1.5rem; color: #020202; margin-top: -2.5rem;">
+                    Hello {{name}}, <br>
+                    Your account have being created, below is you credentials:
+                </p>
+                <p  style="color: rgb(11, 181, 102); font-size: 2rem; font-weight: bold; text-decoration: none; margin-left: -31rem"> <span>Username</span>{{username}}</p>
+                <p  style="color: rgb(11, 181, 102); font-size: 2rem; font-weight: bold; text-decoration: none; margin-left: -31rem"> <span>Username</span>{{email}}</p>
+                <p  style="color: rgb(11, 181, 102); font-size: 2rem; font-weight: bold; text-decoration: none; margin-left: -31rem"> <span>Username</span>{{password}}</p>
+                <p style="text-align: left; margin-top: -1.5rem; color: #020202;">If you received this email in error or believe it was sent to you incorrectly, please feel free to disregard it.</p>
+            </div>
+    
+
+        </div>
+    </div>
+</body>
+</html>

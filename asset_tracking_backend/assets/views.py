@@ -117,10 +117,9 @@ class AddAssetAPI(generics.GenericAPIView):
                 asset_name=asset.product.product_name,  
                 asset_serial_number=asset.product.serial_number,  
                 asset_owner = asset.owner.username,
-                user=request.user, 
+                user=request.user.username, 
                 action=f'added {product}')
             asset_log.save()
-            print(asset_log.action)
             serializer = GetAllAssetSerializer(asset)
             return Response(serializer.data,
                     status=status.HTTP_201_CREATED,
@@ -167,7 +166,7 @@ class DeleteAssetAPI(SimpleCrudMixin):
                     asset_name=obj.product.product_name,  
                     asset_serial_number=obj.product.serial_number,  
                     asset_owner = obj.owner.username,
-                    user=request.user,
+                    user=request.user.username, 
                     action=f'deleted {obj}'
                 )
                 asset_log.save()
@@ -203,7 +202,7 @@ class ChangeAssetStatusAPI(generics.GenericAPIView):
                 asset.save()
                 asset_log = AssetLog.objects.create(
                     asset=asset, 
-                    user=request.user, 
+                    user=request.user.username, 
                     asset_name=asset.product.product_name,  
                     asset_serial_number=asset.product.serial_number,  
                     asset_owner = asset.owner.username,

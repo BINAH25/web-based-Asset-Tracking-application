@@ -38,7 +38,7 @@ class Asset(models.Model):
     
 class AssetLog(models.Model):
     asset = models.ForeignKey(Asset, on_delete=models.SET_NULL, null=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.CharField(max_length=255, null=True, blank=True)
     asset_name = models.CharField(max_length=255, null=True, blank=True)
     asset_serial_number = models.CharField(max_length=100, null=True, blank=True)
     asset_owner = models.CharField(max_length=200, null=True, blank=True)
