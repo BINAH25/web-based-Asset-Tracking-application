@@ -408,7 +408,7 @@ useEffect(() => {
                       key={row.id}
                       tag_id={row.tag_id}
                       tag_name={row.tag_name}
-                      created_by={row.created_by.username}
+                      created_by={row?.created_by?.username}
                       selected={selected.indexOf(row.usernane) !== -1}
                       handleClick={(event) => handleClick(event, row.usernane)}
                       onDeleteClick={() => handleDeleteOpen(row)} 
