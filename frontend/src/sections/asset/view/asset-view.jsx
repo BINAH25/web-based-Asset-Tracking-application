@@ -58,7 +58,29 @@ const style2 = {
     bgcolor: 'background.paper',
     boxShadow: 24,
     p: 4,
+};
+
+function formatISODate(isoString) {
+  // Step 1: Parse the ISO 8601 string into a Date object
+  const date = new Date(isoString);
+
+  // Step 2: Format the Date object into a more readable string
+  // Customize the options as needed
+  const options = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZoneName: 'short'
   };
+
+  // Convert to a readable format
+  const readableDate = date.toLocaleString('en-US', options);
+
+  return readableDate;
+}
 export default function AssetPage() {
     const toast = useToast()
 
@@ -723,7 +745,7 @@ export default function AssetPage() {
                       product_name={row.product?.product_name}
                       owner={row.owner?.institution?.institution_name}
                       status={row.status}
-                      created_at={fDate(row.created_at)}
+                      created_at={formatISODate(row.created_at)}
                       created_by={row.created_by?.username}
                       selected={selected.indexOf(row.serial_number) !== -1}
                       handleClick={(event) => handleClick(event, row.serial_number)}

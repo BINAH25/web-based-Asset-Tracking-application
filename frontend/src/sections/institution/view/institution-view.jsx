@@ -98,18 +98,18 @@ export default function InstitutionPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = institutions.map((n) => n.usernane);
+      const newSelecteds = institutions.map((n) => n.username);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  const handleClick = (event, usernane) => {
-    const selectedIndex = selected.indexOf(usernane);
+  const handleClick = (event, username) => {
+    const selectedIndex = selected.indexOf(username);
     let newSelected = [];
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, usernane);
+      newSelected = newSelected.concat(selected, username);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -440,8 +440,8 @@ export default function InstitutionPage() {
                       location={row.location}
                       phone={row.phone}
                       institution_type={row.institution_type}
-                      selected={selected.indexOf(row.usernane) !== -1}
-                      handleClick={(event) => handleClick(event, row.usernane)}
+                      selected={selected.indexOf(row.username) !== -1}
+                      handleClick={(event) => handleClick(event, row.username)}
                       onDeleteClick={() => handleDeleteOpen(row)} 
                     />
                   ))}

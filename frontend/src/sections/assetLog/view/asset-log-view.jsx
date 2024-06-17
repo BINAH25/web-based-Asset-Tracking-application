@@ -78,18 +78,18 @@ export default function AssetLogView() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = assetLogs.map((n) => n.usernane);
+      const newSelecteds = assetLogs.map((n) => n.username);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  const handleClick = (event, usernane) => {
-    const selectedIndex = selected.indexOf(usernane);
+  const handleClick = (event, username) => {
+    const selectedIndex = selected.indexOf(username);
     let newSelected = [];
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, usernane);
+      newSelected = newSelected.concat(selected, username);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -166,13 +166,13 @@ export default function AssetLogView() {
                   .map((row) => (
                     <AssetLogTableRow
                       key={row.id}
-                      username={row?.user?.username}
+                      username={row.username}
                       action={row.action}
                       created_at={formatISODate(row.created_at)}
                       asset_name={row.asset_name}
                       asset_serial_number={row.asset_serial_number}
                       asset_owner={row.asset_owner}
-                      selected={selected.indexOf(row.usernane) !== -1}
+                      selected={selected.indexOf(row.username) !== -1}
                     />
                   ))}
 

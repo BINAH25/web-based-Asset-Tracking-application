@@ -44,6 +44,28 @@ const style = {
     boxShadow: 24,
     p: 4,
 };
+
+function formatISODate(isoString) {
+  // Step 1: Parse the ISO 8601 string into a Date object
+  const date = new Date(isoString);
+
+  // Step 2: Format the Date object into a more readable string
+  // Customize the options as needed
+  const options = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZoneName: 'short'
+  };
+
+  // Convert to a readable format
+  const readableDate = date.toLocaleString('en-US', options);
+
+  return readableDate;
+}
 export default function ProductPage() {
     const toast = useToast()
 
@@ -463,7 +485,7 @@ const handleTagChange = (event) => {
                       serial_number={row.serial_number}
                       product_name={row.product_name}
                       availability={row.availability}
-                      procurement_date={fDate(row.procurement_date)}
+                      procurement_date={formatISODate(row.created_at)}
                       created_by={row.created_by?.username}
                       selected={selected.indexOf(row.serial_number) !== -1}
                       handleClick={(event) => handleClick(event, row.serial_number)}
