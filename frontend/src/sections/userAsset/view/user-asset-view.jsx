@@ -182,7 +182,7 @@ export default function AssetPage() {
     } else {
       toast({
         position: 'top-center',
-        title: 'OTP Sent',
+        title: 'Success',
         description: response["success_message"],
         status: 'success',
         duration: 5000,

@@ -203,7 +203,7 @@ export default function ProductPage() {
     } else {
       toast({
         position: 'top-center',
-        title: 'OTP Sent',
+        title: 'Success',
         description: response["success_message"],
         status: 'success',
         duration: 5000,
@@ -273,7 +273,7 @@ export default function ProductPage() {
       } else {
         toast({
           position: 'top-center',
-          title: 'OTP Sent',
+          title: 'Success',
           description: "Product added successfully",
           status: 'success',
           duration: 5000,

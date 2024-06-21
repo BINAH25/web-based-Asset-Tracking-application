@@ -161,7 +161,7 @@ useEffect(() => {
     } else {
       toast({
         position: 'top-center',
-        title: 'OTP Sent',
+        title: 'Success',
         description: response["success_message"],
         status: 'success',
         duration: 5000,
@@ -231,7 +231,7 @@ useEffect(() => {
       } else {
         toast({
           position: 'top-center',
-          title: 'OTP Sent',
+          title: 'Success',
           description: "Tag added successfully",
           status: 'success',
           duration: 5000,

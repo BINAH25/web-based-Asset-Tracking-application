@@ -172,7 +172,7 @@ export default function InstitutionPage() {
     } else {
       toast({
         position: 'top-center',
-        title: 'OTP Sent',
+        title: 'Success',
         description: response["success_message"],
         status: 'success',
         duration: 5000,
@@ -245,7 +245,7 @@ export default function InstitutionPage() {
       } else {
         toast({
           position: 'top-center',
-          title: 'OTP Sent',
+          title: 'Success',
           description: "Institution added successfully",
           status: 'success',
           duration: 5000,
