@@ -27,7 +27,7 @@ User = get_user_model()
 logger = logging.getLogger('user_activity')
 # Create your views here.
 
-def try_function(self):
+def try_function(request):
     test.delay()
     return HttpResponse("Done")
 

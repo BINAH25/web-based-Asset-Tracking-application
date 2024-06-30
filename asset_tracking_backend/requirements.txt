@@ -5,3 +5,4 @@ djangorestframework>=3.14.0
 djangorestframework-simplejwt>=5.2.2
 celery>=5.3.5
 django-celery-results>=2.5.1
+django-celery-beat>=2.5.0
