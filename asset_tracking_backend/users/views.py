@@ -22,9 +22,14 @@ from django.utils import timezone
 import datetime
 from users.forms import *
 from users.mixins import SimpleCrudMixin
+from users.tasks import test
 User = get_user_model()
 logger = logging.getLogger('user_activity')
 # Create your views here.
+
+def try_function(self):
+    test.delay()
+    return HttpResponse("Done")
 
 def get_auth_for_user(user):
     refresh = RefreshToken.for_user(user)

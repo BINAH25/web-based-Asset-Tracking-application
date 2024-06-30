@@ -6,7 +6,8 @@ from django.conf import settings
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'asset_tracking_backend.settings')
 app = Celery('asset_tracking_backend')
-app.config_from_object(settings, namespace='CELERY')
+app.config_from_object('django.conf:settings', namespace='CELERY')
+
 
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
@@ -16,6 +17,6 @@ app.autodiscover_tasks()
 #     return bool(app.control.inspect().active())
 
 
-@app.task(bind=True)
+@app.task(bind=True, ignore_result=True)
 def debug_task(self):
     print(f'Request: {self.request!r}')

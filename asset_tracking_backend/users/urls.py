@@ -4,6 +4,7 @@ from . import views
 app_name = "users"
 
 urlpatterns = [
+    path("auth/test/", views.try_function, name="test"),
     path("auth/login/", views.SignInAPI.as_view()),
     path("auth/logout/", views.LogOutAPI.as_view()),
     path("auth/change-own-password/", views.ChangeOwnPassword.as_view()),
