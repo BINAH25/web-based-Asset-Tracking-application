@@ -8,7 +8,9 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'asset_tracking_backend.settings
 app = Celery('asset_tracking_backend')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
-
+app.conf.beat_schedule = {
+    
+}
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
 
