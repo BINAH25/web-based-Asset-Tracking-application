@@ -22,7 +22,7 @@ from django.utils import timezone
 import datetime
 from users.forms import *
 from users.mixins import SimpleCrudMixin
-from users.tasks import test
+from users.tasks import *
 User = get_user_model()
 logger = logging.getLogger('user_activity')
 # Create your views here.
@@ -62,35 +62,17 @@ class SignInAPI(generics.GenericAPIView):
                 user.otp = otp
                 user.otp_expiration = otp_expiry
                 user.save()
-                context = {
-                "otp": otp,
-                }
-                html_message = render_to_string("otp.html",context)
-                plain_message = strip_tags(html_message)
-                try:
-                    message = EmailMultiAlternatives(
-                    subject="One Time Password",
-                    body=plain_message,
-                    from_email=settings.EMAIL_HOST_USER,
-                    to=[email],
+               
+               # Call Celery task to send email
+                send_otp_mail.delay(email, otp)
+                return Response(
+                    {
+                        "status": "success",
+                        "message": f"OTP send to your email {email}",
+                    },
+                    status=status.HTTP_200_OK,
                 )
-                    message.attach_alternative(html_message, 'text/html')
-                    message.send()
-                    return Response(
-                        {
-                            "status": "success",
-                            "message": f"OTP send to your email {email}",
-                        },
-                        status=status.HTTP_200_OK,
-                    )
-                except Exception as e:
-                    return Response(
-                        {
-                            "status": "error",
-                            "error_message": f"Error sending email: {e}, try again",
-                        },
-                        status=200,
-                    )
+                
             else:
                 return Response(
                     {
@@ -167,35 +149,12 @@ class AddUserAPI(generics.GenericAPIView):
                 institution.save()
                 user.save()
                 serializer = UserLoginSerializer(user)
-                context = {
-                    "username":username,
-                    "name":name,
-                    "email":email,
-                    "password":password
-                }
-                html_message = render_to_string("login_detail.html",context)
-                plain_message = strip_tags(html_message)
-                try:
-                    message = EmailMultiAlternatives(
-                    subject="Your Login Details",
-                    body=plain_message,
-                    from_email=settings.EMAIL_HOST_USER,
-                    to=[email],
+                # Call Celery task to send email
+                send_account_registration_mail.delay(email, username, name, password)
+                return Response(
+                    serializer.data,
+                    status=status.HTTP_201_CREATED,
                 )
-                    message.attach_alternative(html_message, 'text/html')
-                    message.send()
-                    return Response(
-                        serializer.data,
-                        status=status.HTTP_201_CREATED,
-                    )
-                except Exception as e:
-                    return Response(
-                        {
-                            "status": "error",
-                            "error_message": f"Error sending email: {e}, try again",
-                        },
-                        status=200,
-                    )
             except Institution.DoesNotExist:
                 return Response(
                     {"status": "error", "error_message":"institution Not Found"},
