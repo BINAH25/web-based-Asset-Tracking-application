@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/home/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db  # Ensure the backend waits for the database
+
+  db:
+    image: postgres:13  # PostgreSQL image version
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # To persist the database data
+    environment:
+      POSTGRES_DB: demo  # Name of the database to be created
+      POSTGRES_USER: postgres  # Username for PostgreSQL
+      POSTGRES_PASSWORD: louis123  # Password for the user
+    ports:
+      - "5432:5432"  # Default PostgreSQL port
+
+volumes:
+  postgres_data:  # Persistent storage for PostgreSQL data

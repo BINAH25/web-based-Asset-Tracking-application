@@ -22,14 +22,11 @@ from django.utils import timezone
 import datetime
 from users.forms import *
 from users.mixins import SimpleCrudMixin
-from users.tasks import *
+from utils.email import *
+
 User = get_user_model()
 logger = logging.getLogger('user_activity')
 # Create your views here.
-
-def try_function(request):
-    test.delay()
-    return HttpResponse("Done")
 
 def get_auth_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -64,7 +61,7 @@ class SignInAPI(generics.GenericAPIView):
                 user.save()
                
                # Call Celery task to send email
-                send_otp_mail.delay(email, otp)
+                send_otp_mail(email, otp)
                 return Response(
                     {
                         "status": "success",
@@ -150,7 +147,7 @@ class AddUserAPI(generics.GenericAPIView):
                 user.save()
                 serializer = UserLoginSerializer(user)
                 # Call Celery task to send email
-                send_account_registration_mail.delay(email, username, name, password)
+                send_account_registration_mail(email, username, name, password)
                 return Response(
                     serializer.data,
                     status=status.HTTP_201_CREATED,
