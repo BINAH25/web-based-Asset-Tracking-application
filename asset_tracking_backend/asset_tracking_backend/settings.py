@@ -161,7 +161,7 @@ DATABASES = {
         'NAME': 'demo',  # Name of the PostgreSQL database
         'USER': 'postgres',  # PostgreSQL user
         'PASSWORD': 'louis123',  # PostgreSQL password
-        'HOST': 'db',  # Docker service name for PostgreSQL (we'll set it in docker-compose.yml)
+        'HOST': 'db',  
         'PORT': '5432',  # Default PostgreSQL port
     }
 }
