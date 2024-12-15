@@ -4,8 +4,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        VITE_BACKEND_URL: "http://12.0.2.88:8000"
     ports:
       - "80:80"
     environment:

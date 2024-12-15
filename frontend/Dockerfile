@@ -11,9 +11,6 @@ RUN yarn install
 # Copy the rest of the application code and build it
 COPY . .
 
-# Pass environment variables to Vite
-ARG VITE_BACKEND_URL
-ENV VITE_BACKEND_URL=$VITE_BACKEND_URL
 
 RUN yarn build
 
@@ -22,6 +19,8 @@ FROM nginx:alpine
 
 # Copy build files to nginx
 COPY --from=build /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 
 # Expose the Nginx port
 EXPOSE 80
